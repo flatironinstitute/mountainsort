@@ -8,11 +8,11 @@ MountainSort is spike sorting software developed by Jeremy Magland, Alex Barnett
 Installation and Getting started
 --------------------------------
 
-There are various ways to install and/or use MountainSort:
+There are various ways to install and/or use MountainSort. The best choice will depend on how you plan to interact with the program. You can use MountainSort...
 
-* Via MountainLab as a plugin package
-* As a standalone program
-* From the web interface (cloud computing)
+* via MountainLab as a plugin package
+* as a standalone program
+* from the web interface (cloud computing)
 
 Installing as a plugin package to MountainLab
 ---------------------------------------------
@@ -25,8 +25,8 @@ To install as a docker package, do the following (after installing mountainlab a
 
 .. code:: bash
 
-  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/pyms
-  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/mountainsortalg
+  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/pyms pyms
+  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/mountainsortalg mountainsortalg
 
 
 Installing as a standalone program
@@ -43,3 +43,7 @@ After installing the above prerequisites, you must compile the mountainsortalg c
   make -j
 
 Note that there is also C++ code in the python part (pyms), but that will get compiled on the fly by cppimport and pybind11.
+
+Testing the installation
+------------------------
+
