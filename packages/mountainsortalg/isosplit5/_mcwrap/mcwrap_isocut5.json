@@ -1,0 +1,15 @@
+[
+{
+	"function_name":"isocut5_mex",
+	"parameters"[
+		{"prole":"output","ptype":"double*","pname":"dipscore","dimensions":[" 1"," 1"],"is_complex":"0","set_value":""},
+		{"prole":"output","ptype":"double*","pname":"cutpoint","dimensions":[" 1"," 1"],"is_complex":"0","set_value":""},
+		{"prole":"set_input","ptype":"int","pname":"N","dimensions":[],"is_complex":"0","set_value":"mcwrap_size(<samples>,2)"},
+		{"prole":"input","ptype":"double*","pname":"samples","dimensions":[" 1"," $N$"],"is_complex":"0","set_value":""}
+	],
+	"return_type":"void"
+	"sources":["isocut5.cpp","jisotonic5.cpp"]
+	"headers":["isocut5.h","isocut5.h","jisotonic5.h"]
+	"mexargs":"",
+}
+]

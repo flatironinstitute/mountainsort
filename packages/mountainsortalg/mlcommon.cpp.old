@@ -1,0 +1,80 @@
+/******************************************************
+** See the accompanying README and LICENSE files
+** Author(s): Jeremy Magland
+** Created: 7/6/2016
+*******************************************************/
+
+#include "mlcommon.h"
+#include "mlutil.h"
+
+#include <QFile>
+#include <QTextStream>
+#include <QTime>
+#include <QThread>
+#include <QCoreApplication>
+#include <QUrl>
+#include <QDir>
+#include <QCryptographicHash>
+#include <math.h>
+#include <QDataStream>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QProcess>
+#include <QJsonArray>
+#include <QSettings>
+
+#define PRV_VERSION "0.11"
+
+#ifdef QT_GUI_LIB
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
+#include <QMessageBox>
+#endif
+
+QString system_call_return_output(QString cmd);
+
+
+
+QString find_ancestor_path_with_name(QString path, QString name)
+{
+    if (name.isEmpty())
+        return "";
+    while (QFileInfo(path).fileName() != name) {
+        path = QFileInfo(path).path();
+        if (!path.contains(name))
+            return ""; //guarantees that we eventually exit the while loop
+    }
+    return path; //the directory name must equal the name argument
+}
+
+QString find_ancestor_path_with_file(QString path, QString file_name)
+{
+    if (file_name.isEmpty())
+        return "";
+    int safety_ct = 0;
+    while (!QFile::exists(path + "/" + file_name)) {
+        if (!path.contains("/"))
+            return "";
+        path = QFileInfo(path).path();
+        safety_ct++;
+        if (safety_ct > 20) {
+            qWarning() << "Tell jeremy this warning is happening. safety_ct>20.";
+            return "";
+        }
+    }
+    if (QFile::exists(path + "/" + file_name))
+        return path;
+    else
+        return "";
+}
+
+void mkdir_if_doesnt_exist(const QString& path)
+{
+    if (!QDir(path).exists()) {
+        QDir(QFileInfo(path).path()).mkdir(QFileInfo(path).fileName());
+    }
+}
+
+
+

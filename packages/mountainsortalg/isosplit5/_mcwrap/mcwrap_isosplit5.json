@@ -1,0 +1,15 @@
+[
+{
+	"function_name":"isosplit5_mex",
+	"parameters"[
+		{"prole":"output","ptype":"double*","pname":"labels_out","dimensions":[" 1"," $N$"],"is_complex":"0","set_value":""},
+		{"prole":"set_input","ptype":"int","pname":"M","dimensions":[],"is_complex":"0","set_value":"mcwrap_size(<X>,1)"},
+		{"prole":"set_input","ptype":"int","pname":"N","dimensions":[],"is_complex":"0","set_value":"mcwrap_size(<X>,2)"},
+		{"prole":"input","ptype":"double*","pname":"X","dimensions":[" $M$"," $N$"],"is_complex":"0","set_value":""}
+	],
+	"return_type":"void"
+	"sources":["isosplit5.cpp","isocut5.cpp","jisotonic5.cpp"]
+	"headers":["isosplit5.h","isosplit5.h","isocut5.h","jisotonic5.h"]
+	"mexargs":"",
+}
+]

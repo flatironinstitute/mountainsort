@@ -1,0 +1,22 @@
+/******************************************************
+** See the accompanying README and LICENSE files
+** Author(s): Jeremy Magland
+** Created: 7/6/2016
+*******************************************************/
+
+#ifndef MLCOMMON_H
+#define MLCOMMON_H
+
+#include <QTextCodec>
+#include <QDebug>
+#include <QJsonValue>
+#include <QByteArray>
+#include <QJsonObject>
+#include <QFileInfo>
+
+#include <math.h>
+
+typedef int64_t bigint;
+
+
+#endif // TEXTFILE_H
