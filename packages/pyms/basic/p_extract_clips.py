@@ -44,7 +44,6 @@ def extract_clips_helper(*,timeseries,times,clip_size=100):
     def _kernel(chunk,info):
         inds=np.where((info.t1<=times)&(times<=info.t2))[0]
         times0=times[inds]-info.t1+info.t1a
-        
         clips0=np.zeros((M,clip_size,len(inds)),dtype=np.float32,order='F');
         cpp.extract_clips(clips0,chunk,times0,clip_size)
         

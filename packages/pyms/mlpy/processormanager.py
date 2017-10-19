@@ -120,7 +120,7 @@ class ProcessorManager:
                 if not tmp[0].startswith('_'):
                     if (len(tmp)==2):
                         if (tmp[0] in args):
-                            if type(args[tmp[0]]=='list'):
+                            if (type(args[tmp[0]])==list):
                                 args[tmp[0]].append(tmp[1]) #already a list, so append
                             else:
                                 args[tmp[0]]=[args[tmp[0]],tmp[1]] #not a list yet, so make it a list and append
