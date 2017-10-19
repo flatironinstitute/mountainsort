@@ -20,5 +20,4 @@ ADD . /package
 WORKDIR /package
 RUN qmake
 RUN make -j
-
-
+RUN bin/mountainsortalg.mp spec > mountainsortalg.spec

@@ -12,5 +12,7 @@ RUN apt-get update && apt-get install -y fftw3-dev
 ADD . /package
 
 # Build
-RUN /package/basic/basic.mp
-
+WORKDIR /package
+RUN basic/basic.mp spec > basic.spec
+RUN drift/drift.mp spec > drift.spec
+RUN synthesis/synthesis.mp spec > synthesis.spec
