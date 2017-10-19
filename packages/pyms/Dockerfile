@@ -5,11 +5,12 @@ MAINTAINER Jeremy Magland
 # Python3 with numpy
 RUN apt-get update && \
     apt-get install -y \
-    python3 python3-numpy python3-pip
+    python3 python3-pip
 
-RUN pip3 install pybind11 cppimport
-RUN pip3 install scipy
-RUN pip3 install sklearn
+RUN pip3 install --upgrade numpy
+RUN pip3 install --upgrade pybind11 cppimport
+RUN pip3 install --upgrade scipy
+RUN pip3 install --upgrade sklearn
 
 RUN apt-get update && apt-get install -y fftw3-dev
 
