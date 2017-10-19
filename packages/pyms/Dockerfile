@@ -6,6 +6,7 @@ MAINTAINER Jeremy Magland
 RUN apt-get update && apt-get install -y python3 python3-pip
 
 RUN pip3 install numpy pybind11 cppimport scipy
+RUN pip3 install sklearn
 
 RUN apt-get update && apt-get install -y fftw3-dev
 
