@@ -24,6 +24,23 @@
 #include "p_concat_timeseries.h"
 #include "p_banjoview_cross_correlograms.h"
 #include "p_create_multiscale_timeseries.h"
+#include "p_bandpass_filter.h"
+#include "p_whiten.h"
+#include "p_extract_clips.h"
+#include "p_compute_templates.h"
+#include "p_create_firings.h"
+#include "p_combine_firings.h"
+#include "p_apply_timestamp_offset.h"
+#include "p_link_segments.h"
+#include "p_cluster_metrics.h"
+#include "p_isolation_metrics.h"
+#include "p_concat_firings.h"
+#include "p_concat_timeseries.h"
+#include "p_split_firings.h"
+#include "p_load_test.h"
+#include "p_compute_amplitudes.h"
+#include "p_confusion_matrix.h"
+#include "p_reorder_labels.h"
 
 QJsonObject get_spec()
 {
@@ -104,6 +121,182 @@ QJsonObject get_spec()
         X.addOutputs("timeseries_out");
         processors.push_back(X.get_spec());
     }
+
+
+
+
+#ifndef NO_FFTW3
+    {
+        ProcessorSpec X("ms3.bandpass_filter", "0.18");
+        X.addInputs("timeseries");
+        X.addOutputs("timeseries_out");
+        X.addRequiredParameters("samplerate", "freq_min", "freq_max");
+        X.addOptionalParameter("freq_wid", "", 1000);
+        X.addOptionalParameter("quantization_unit", "", 0);
+        X.addOptionalParameter("subsample_factor", "", 1);
+        processors.push_back(X.get_spec());
+    }
+#endif
+    {
+        ProcessorSpec X("ms3.whiten", "0.1");
+        X.addInputs("timeseries");
+        X.addOutputs("timeseries_out");
+        //X.addRequiredParameters();
+        X.addOptionalParameter("quantization_unit", "", 0);
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.compute_whitening_matrix", "0.11");
+        X.addInputs("timeseries_list");
+        X.addOutputs("whitening_matrix_out");
+        X.addOptionalParameter("channels");
+        //X.addRequiredParameters();
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.whiten_clips", "0.1");
+        X.addInputs("clips", "whitening_matrix");
+        X.addOutputs("clips_out");
+        //X.addRequiredParameters();
+        X.addOptionalParameter("quantization_unit", "", 0);
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.apply_whitening_matrix", "0.1");
+        X.addInputs("timeseries", "whitening_matrix");
+        X.addOutputs("timeseries_out");
+        //X.addRequiredParameters();
+        X.addOptionalParameter("quantization_unit", "", 0);
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.extract_clips", "0.11");
+        X.addInputs("timeseries", "event_times");
+        X.addOutputs("clips_out");
+        X.addRequiredParameters("clip_size");
+        X.addOptionalParameter("channels");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.compute_templates", "0.11");
+        X.addInputs("timeseries", "firings");
+        X.addOutputs("templates_out");
+        X.addRequiredParameters("clip_size");
+        X.addOptionalParameter("clusters", "Comma-separated list of clusters to inclue", "");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.reorder_labels", "0.11");
+        X.addInputs("templates", "firings");
+        X.addOutputs("firings_out");
+        //X.addRequiredParameters();
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.create_firings", "0.1");
+        X.addInputs("event_times", "labels");
+        X.addOptionalInputs("amplitudes");
+        X.addOutputs("firings_out");
+        X.addRequiredParameters("central_channel");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.combine_firings", "0.1");
+        X.addInputs("firings_list");
+        X.addOutputs("firings_out");
+        //X.addRequiredParameters();
+        X.addOptionalParameter("increment_labels", "", "true");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.apply_timestamp_offset", "0.1");
+        X.addInputs("firings");
+        X.addOutputs("firings_out");
+        X.addRequiredParameters("timestamp_offset");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.link_segments", "0.1");
+        X.addInputs("firings", "firings_prev", "Kmax_prev");
+        X.addOutputs("firings_out", "Kmax_out");
+        X.addOutputs("firings_subset_out", "Kmax_out");
+        X.addRequiredParameters("t1", "t2", "t1_prev", "t2_prev");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.cluster_metrics", "0.11");
+        X.addInputs("timeseries", "firings");
+        X.addOutputs("cluster_metrics_out");
+        X.addRequiredParameters("samplerate");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.isolation_metrics", "0.15j");
+        X.addInputs("timeseries", "firings");
+        X.addOutputs("metrics_out");
+        X.addOptionalOutputs("pair_metrics_out");
+        X.addOptionalParameter("compute_bursting_parents", "", "false");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.extract_firings", "0.11");
+        X.addInputs("firings");
+        X.addOutputs("firings_out");
+        X.addInputs("clusters");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.combine_cluster_metrics", "0.1");
+        X.addInputs("metrics_list");
+        X.addOutputs("metrics_out");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.split_firings", "0.15");
+        X.addInputs("timeseries_list", "firings");
+        X.addOutputs("firings_out_list");
+        //X.addRequiredParameters();
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.concat_firings", "0.13");
+        X.addInputs("firings_list");
+        X.addOptionalInputs("timeseries_list");
+        X.addOutputs("firings_out");
+        X.addOptionalOutputs("timeseries_out");
+        //X.addRequiredParameters();
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.concat_event_times", "0.1");
+        X.addInputs("event_times_list");
+        X.addOutputs("event_times_out");
+        //X.addRequiredParameters();
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.load_test", "0.1");
+        X.addOutputs("stats_out");
+        X.addOptionalParameters("num_read_bytes", "num_write_bytes", "num_cpu_ops");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.compute_amplitudes", "0.1");
+        X.addInputs("timeseries", "event_times");
+        X.addOutputs("amplitudes_out");
+        X.addRequiredParameters("central_channel");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.confusion_matrix", "0.17");
+        X.addInputs("firings1", "firings2");
+        X.addOutputs("confusion_matrix_out");
+        X.addOptionalOutputs("matched_firings_out", "label_map_out", "firings2_relabeled_out", "firings2_relabel_map_out");
+        X.addOptionalParameter("max_matching_offset", "", 30);
+        X.addOptionalParameter("relabel_firings2", "", "false");
+        processors.push_back(X.get_spec());
+    }
+
 
     QJsonObject ret;
     ret["processors"] = processors;
@@ -242,6 +435,187 @@ int main(int argc, char* argv[])
             return -1;
         }
         ret = p_create_multiscale_timeseries(timeseries,timeseries_out,tempdir);
+    }
+#ifndef NO_FFTW3
+    else if (arg1 == "ms3.bandpass_filter") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
+        Bandpass_filter_opts opts;
+        opts.samplerate = CLP.named_parameters["samplerate"].toDouble();
+        opts.freq_min = CLP.named_parameters["freq_min"].toDouble();
+        opts.freq_max = CLP.named_parameters["freq_max"].toDouble();
+        opts.freq_wid = CLP.named_parameters.value("freq_wid", 1000).toDouble();
+        opts.quantization_unit = CLP.named_parameters.value("quantization_unit").toDouble();
+        opts.subsample_factor = CLP.named_parameters.value("subsample_factor", 1).toInt();
+        ret = p_bandpass_filter(timeseries, timeseries_out, opts);
+    }
+#endif
+    else if (arg1 == "ms3.whiten") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
+        Whiten_opts opts;
+        opts.quantization_unit = CLP.named_parameters["quantization_unit"].toDouble();
+        ret = p_whiten(timeseries, timeseries_out, opts);
+    }
+    else if (arg1 == "ms3.compute_whitening_matrix") {
+        QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
+        QString whitening_matrix_out = CLP.named_parameters["whitening_matrix_out"].toString();
+        QStringList channels_str = CLP.named_parameters["channels"].toString().split(",", QString::SkipEmptyParts);
+        QList<int> channels = MLUtil::stringListToIntList(channels_str);
+        Whiten_opts opts;
+        ret = p_compute_whitening_matrix(timeseries_list, channels, whitening_matrix_out, opts);
+    }
+    else if (arg1 == "ms3.whiten_clips") {
+        QString clips = CLP.named_parameters["clips"].toString();
+        QString whitening_matrix = CLP.named_parameters["whitening_matrix"].toString();
+        QString clips_out = CLP.named_parameters["clips_out"].toString();
+        Whiten_opts opts;
+        opts.quantization_unit = CLP.named_parameters["quantization_unit"].toDouble();
+        ret = p_whiten_clips(clips, whitening_matrix, clips_out, opts);
+    }
+    else if (arg1 == "ms3.apply_whitening_matrix") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString whitening_matrix = CLP.named_parameters["whitening_matrix"].toString();
+        QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
+        Whiten_opts opts;
+        opts.quantization_unit = CLP.named_parameters["quantization_unit"].toDouble();
+        ret = p_apply_whitening_matrix(timeseries, whitening_matrix, timeseries_out, opts);
+    }
+    else if (arg1 == "ms3.extract_clips") {
+        QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
+        QString event_times = CLP.named_parameters["event_times"].toString();
+        QString clips_out = CLP.named_parameters["clips_out"].toString();
+        QStringList channels_str = CLP.named_parameters["channels"].toString().split(",", QString::SkipEmptyParts);
+        QList<int> channels = MLUtil::stringListToIntList(channels_str);
+        ret = p_extract_clips(timeseries_list, event_times, channels, clips_out, CLP.named_parameters);
+    }
+    else if (arg1 == "ms3.compute_templates") {
+        QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString templates_out = CLP.named_parameters["templates_out"].toString();
+        int clip_size = CLP.named_parameters["clip_size"].toInt();
+        QList<int> clusters = MLUtil::stringListToIntList(CLP.named_parameters["clusters"].toString().split(",", QString::SkipEmptyParts));
+        ret = p_compute_templates(timeseries_list, firings, templates_out, clip_size, clusters);
+    }
+    else if (arg1 == "ms3.reorder_labels") {
+        QString templates = CLP.named_parameters["templates"].toString();
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        ret = p_reorder_labels(templates, firings, firings_out);
+    }
+    else if (arg1 == "ms3.create_firings") {
+        QString event_times = CLP.named_parameters["event_times"].toString();
+        QString labels = CLP.named_parameters["labels"].toString();
+        QString amplitudes = CLP.named_parameters["amplitudes"].toString();
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        int central_channel = CLP.named_parameters["central_channel"].toInt();
+        ret = p_create_firings(event_times, labels, amplitudes, firings_out, central_channel);
+    }
+    else if (arg1 == "ms3.combine_firings") {
+        QStringList firings_list = MLUtil::toStringList(CLP.named_parameters["firings_list"]);
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        QString tmp = CLP.named_parameters.value("increment_labels", "").toString();
+        bool increment_labels = (tmp == "true");
+        ret = p_combine_firings(firings_list, firings_out, increment_labels);
+    }
+    else if (arg1 == "ms3.apply_timestamp_offset") {
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        double timestamp_offset = CLP.named_parameters["timestamp_offset"].toDouble();
+        ret = p_apply_timestamp_offset(firings, firings_out, timestamp_offset);
+    }
+    else if (arg1 == "ms3.link_segments") {
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString firings_prev = CLP.named_parameters["firings_prev"].toString();
+        QString Kmax_prev = CLP.named_parameters["Kmax_prev"].toString();
+
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        QString firings_subset_out = CLP.named_parameters["firings_subset_out"].toString();
+        QString Kmax_out = CLP.named_parameters["Kmax_out"].toString();
+
+        double t1 = CLP.named_parameters["t1"].toDouble();
+        double t2 = CLP.named_parameters["t2"].toDouble();
+        double t1_prev = CLP.named_parameters["t1_prev"].toDouble();
+        double t2_prev = CLP.named_parameters["t2_prev"].toDouble();
+        ret = p_link_segments(firings, firings_prev, Kmax_prev, firings_out, firings_subset_out, Kmax_out, t1, t2, t1_prev, t2_prev);
+    }
+    else if (arg1 == "ms3.cluster_metrics") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString cluster_metrics_out = CLP.named_parameters["cluster_metrics_out"].toString();
+        Cluster_metrics_opts opts;
+        opts.samplerate = CLP.named_parameters["samplerate"].toDouble();
+        ret = p_cluster_metrics(timeseries, firings, cluster_metrics_out, opts);
+    }
+    else if (arg1 == "ms3.isolation_metrics") {
+        QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString metrics_out = CLP.named_parameters["metrics_out"].toString();
+        QString pair_metrics_out = CLP.named_parameters["pair_metrics_out"].toString();
+        P_isolation_metrics_opts opts;
+        opts.compute_bursting_parents = (CLP.named_parameters["compute_bursting_parents"].toString() == "true");
+        ret = p_isolation_metrics(timeseries_list, firings, metrics_out, pair_metrics_out, opts);
+    }
+    else if (arg1 == "ms3.combine_cluster_metrics") {
+        QStringList metrics_list = MLUtil::toStringList(CLP.named_parameters["metrics_list"]);
+        QString metrics_out = CLP.named_parameters["metrics_out"].toString();
+        ret = p_combine_cluster_metrics(metrics_list, metrics_out);
+    }
+    else if (arg1 == "ms3.split_firings") {
+        QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
+        QString firings = CLP.named_parameters["firings"].toString();
+        QStringList firings_out_list = MLUtil::toStringList(CLP.named_parameters["firings_out_list"]);
+        ret = p_split_firings(timeseries_list, firings, firings_out_list);
+    }
+    else if (arg1 == "ms3.extract_firings") {
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        QStringList clusters_str = MLUtil::toStringList(CLP.named_parameters["clusters"]);
+        QSet<int> clusters = MLUtil::stringListToIntList(clusters_str).toSet();
+        ret = p_extract_firings(firings, clusters, firings_out);
+    }
+    else if (arg1 == "ms3.concat_firings") {
+        QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
+        QStringList firings_list = MLUtil::toStringList(CLP.named_parameters["firings_list"]);
+        QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        ret = p_concat_firings(timeseries_list, firings_list, timeseries_out, firings_out);
+    }
+    else if (arg1 == "ms3.concat_event_times") {
+        QStringList event_times_list = MLUtil::toStringList(CLP.named_parameters["event_times_list"]);
+        QString event_times_out = CLP.named_parameters["event_times_out"].toString();
+        ret = p_concat_event_times(event_times_list, event_times_out);
+    }
+    else if (arg1 == "ms3.load_test") {
+        QString stats_out = CLP.named_parameters["stats_out"].toString();
+        P_load_test_opts opts;
+        opts.num_cpu_ops = CLP.named_parameters["num_cpu_ops"].toDouble();
+        opts.num_read_bytes = CLP.named_parameters["num_read_bytes"].toDouble();
+        opts.num_write_bytes = CLP.named_parameters["num_write_bytes"].toDouble();
+        ret = p_load_test(stats_out, opts);
+    }
+    else if (arg1 == "ms3.compute_amplitudes") {
+        P_compute_amplitudes_opts opts;
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString event_times = CLP.named_parameters["event_times"].toString();
+        opts.central_channel = CLP.named_parameters["central_channel"].toInt();
+        QString amplitudes_out = CLP.named_parameters["amplitudes_out"].toString();
+        ret = p_compute_amplitudes(timeseries, event_times, amplitudes_out, opts);
+    }
+    else if (arg1 == "ms3.confusion_matrix") {
+        P_confusion_matrix_opts opts;
+        QString firings1 = CLP.named_parameters["firings1"].toString();
+        QString firings2 = CLP.named_parameters["firings2"].toString();
+        QString confusion_matrix_out = CLP.named_parameters["confusion_matrix_out"].toString();
+        QString matched_firings_out = CLP.named_parameters.value("matched_firings_out").toString();
+        QString label_map_out = CLP.named_parameters.value("label_map_out").toString();
+        QString firings2_relabeled_out = CLP.named_parameters.value("firings2_relabeled_out").toString();
+        QString firings2_relabel_map_out = CLP.named_parameters.value("firings2_relabel_map_out").toString();
+        if (CLP.named_parameters.contains("max_matching_offset")) {
+            opts.max_matching_offset = CLP.named_parameters.value("max_matching_offset").toInt();
+        }
+        opts.relabel_firings2 = (CLP.named_parameters.value("relabel_firings2", "false").toString() == "true");
+        ret = p_confusion_matrix(firings1, firings2, confusion_matrix_out, matched_firings_out, label_map_out, firings2_relabeled_out, firings2_relabel_map_out, opts);
     }
     else {
         qWarning() << "Unexpected processor name: " + arg1;
