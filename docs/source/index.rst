@@ -57,6 +57,10 @@ Then you must compile mountainsortalg using Qt5/C++:
 
 Note that there is also C++ code in the python part (pyms), but that will get compiled on the fly by cppimport and pybind11.
 
+Installing MountainView
+-----------------------
+
+You will probably want to visualize your spike sorting results. It is recommended that you install `MountainView <https://github.com/flatironinstitute/mountainview.git>`_.
 
 Testing the installation
 ------------------------
@@ -121,4 +125,4 @@ If you are not using MountainLab, you can still run these commands with a bit mo
 
 You can also plunge into the python code itself to use these tools from within your python programs. However, note that all of the processors operate on files -- they do not load the arrays into memory.
 
-
+If you are more comfortable in Matlab 

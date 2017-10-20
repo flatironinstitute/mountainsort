@@ -5,3 +5,5 @@ build
 .rendered.*
 *.so
 geom.csv
+Makefile
+*.pro.user
