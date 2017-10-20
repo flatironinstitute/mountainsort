@@ -8,9 +8,9 @@ from mlpy import readmda,writemda32
 
 processor_name='pyms.synthesize_timeseries'
 processor_version='0.11a'
-def synthesize_timeseries(*,firings,waveforms,timeseries_out=None,noise_level=1,samplerate=30000,duration=60,waveform_upsamplefac=1,amplitudes_row=0):
+def synthesize_timeseries(*,firings='',waveforms='',timeseries_out=None,noise_level=1,samplerate=30000,duration=60,waveform_upsamplefac=1,amplitudes_row=0):
     """
-    Synthesize a electrophysiology timeseries from a set of ground-truth firing events and waveforms
+    Synthesize an electrophysiology timeseries from a set of ground-truth firing events and waveforms
 
     Parameters
     ----------
@@ -37,14 +37,23 @@ def synthesize_timeseries(*,firings,waveforms,timeseries_out=None,noise_level=1,
     waveform_upsamplefac=int(waveform_upsamplefac)
     
     if type(waveforms)==str:
-        W=readmda(waveforms)
+        if waveforms:
+            W=readmda(waveforms)
+        else:
+            W=np.zeros((4,100*waveform_upsamplefac,0))
     else:
         W=waveforms
+        
+    
     
     if type(firings)==str:
-        F=readmda(firings)
+        if firings:
+            F=readmda(firings)
+        else:
+            F=np.zeros((3,0))
     else:
         F=firings
+        
         
     times=F[1,:]
     labels=F[2,:].astype('int')

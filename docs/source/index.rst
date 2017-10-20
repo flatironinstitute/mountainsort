@@ -19,7 +19,7 @@ Installing as a plugin package to MountainLab
 
 MountainLab (ML) is a general framework for scientific data analysis, sharing, and visualization. To install MountainSort as a ML plugin package, you must first install Mountainlab (see `<https://github.com/flatironinstitute/mountainlab.git>`_).
 
-After that, you can either install MountainSort via docker or by cloning the mountainsort repository into the mountainlab/packages directory and then following the instructions below for installing MountainSort as a standalone program.
+After that, you can either install MountainSort via docker or by cloning the mountainsort repository into the mountainlab/packages directory and then following the instructions below for installing MountainSort as a standalone program. In that location, ML will automatically detect it as a plugin.
 
 To install as a docker package, do the following (after installing mountainlab and a recent version of docker of course):
 
@@ -28,13 +28,26 @@ To install as a docker package, do the following (after installing mountainlab a
   mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/pyms pyms
   mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/mountainsortalg mountainsortalg
 
+Note that you (and any users of the software) should be in the "docker" group in order to use docker. Note that this essentially means that you will have root access to the machine.
 
 Installing as a standalone program
 ----------------------------------
 
-Prerequesites: Qt5, python3 with numpy, pybind11, cppimport, scilab, and sklearn
+First install the following prerequisites:
 
-After installing the above prerequisites, you must compile the mountainsortalg component:
+* `Qt5 <http://mountainlab.readthedocs.io/en/latest/installation/qt5_installation.html>`_
+* Python3 with the needed packages
+
+On Debian (e.g., Ubuntu 16.04) you can do the following to install python and the required packages
+
+.. code:: bash
+
+  sudo apt-get install python3 python3-pip
+
+  # Note: you may want to use a virtualenv or other system to manage your python packages
+  pip3 install numpy scipy matplotlib pybind11 cppimport sklearn
+
+Then you must compile mountainsortalg using Qt5/C++:
 
 .. code:: bash
   
@@ -44,6 +57,68 @@ After installing the above prerequisites, you must compile the mountainsortalg c
 
 Note that there is also C++ code in the python part (pyms), but that will get compiled on the fly by cppimport and pybind11.
 
+
 Testing the installation
 ------------------------
+
+If you installed MountainSort as a plugin package to MountainLab, then you should see that the processors have been properly installed by running
+
+.. code:: bash
+
+  mp-list-processors
+
+At the time of writing these docs, I have the following processors:
+
+.. code:: bash
+
+	magland@dub:~/dev/mountainsort/docs$ mp-list-processors 
+	mountainsortalg.ms3
+	pyms.bandpass_filter
+	pyms.compute_templates
+	pyms.concatenate_firings
+	pyms.extract_clips
+	pyms.extract_geom
+	pyms.extract_timeseries
+	pyms.handle_drift_in_segment
+	pyms.join_segments
+	pyms.normalize_channels
+	pyms.synthesize_drifting_timeseries
+	pyms.synthesize_random_firings
+	pyms.synthesize_random_waveforms
+	pyms.synthesize_timeseries
+
+To see the inputs/outputs for each of these registered processors, use the mp-spec command as described in the MountainLab documentation.
+
+The following command will give me a synthetic (pure noise) dataset
+
+.. code:: bash
+
+	mp-run-process pyms.synthesize_timeseries --timeseries_out=sim.mda --duration=10 --samplerate=30000
+
+If successful, then we can check the dimensions and datatype using the "mda" command:
+
+.. code:: bash
+
+	> mda sim.mda
+	{
+	    "data_type": -3,
+	    "data_type_string": "float32",
+	    "dims": [4,300000],
+	    "header_size": 20,
+	    "num_bytes_per_entry": 4,
+	    "num_dims": 2
+	}
+
+All arrays are stored in the `.mda file format <http://mountainlab.readthedocs.io/en/latest/mda_file_format.html>`_.
+
+We can then filter it using the pyms.bandpass_filter processor (use mp-spec to determine the proper inputs/outputs).
+
+If you are not using MountainLab, you can still run these commands with a bit more effort (and without the assistance of tools such as mp-spec, mp-list-processors, and mda):
+
+.. code:: bash
+
+	packages/pyms/basic/basic.mp pyms.synthesize_timeseries --timeseries_out=sim.mda --duration=10 --samplerate=30000
+
+You can also plunge into the python code itself to use these tools from within your python programs. However, note that all of the processors operate on files -- they do not load the arrays into memory.
+
 
