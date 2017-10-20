@@ -1,5 +1,6 @@
 *.mda
 __pycache__
+bin
 build
 .*.cppimporthash
 .rendered.*
@@ -7,3 +8,4 @@ build
 geom.csv
 Makefile
 *.pro.user
+

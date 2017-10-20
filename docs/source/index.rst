@@ -10,16 +10,13 @@ Installation and Getting started
 
 There are various ways to install and/or use MountainSort. The best choice will depend on how you plan to interact with the program. You can use MountainSort...
 
-* via MountainLab as a plugin package
+* as a plugin package to MountainLab (ML)
 * as a standalone program
 * from the web interface (cloud computing)
 
-Installing as a plugin package to MountainLab
----------------------------------------------
+Here we will describe installation as a plugin to ML (recommended), and the remarks below will indicate how it could be used as a standalone program. MountainLab is a general framework for scientific data analysis, sharing, and visualization. See `<https://mountainlab.readthedocs.org>`_ for instructions on installing MountainLab.
 
-MountainLab (ML) is a general framework for scientific data analysis, sharing, and visualization. To install MountainSort as a ML plugin package, you must first install Mountainlab (see `<https://github.com/flatironinstitute/mountainlab.git>`_).
-
-After that, you can either install MountainSort via docker or by cloning the mountainsort repository into the mountainlab/packages directory and then following the instructions below for installing MountainSort as a standalone program. In that location, ML will automatically detect it as a plugin.
+After that, you can either install MountainSort via docker as described below, or by cloning the mountainsort repository into the mountainlab/packages directory and then following the compilation instructions below. In that location (mountainlab/packages), ML will automatically detect it as a plugin.
 
 To install as a docker package, do the following (after installing mountainlab and a recent version of docker of course):
 
@@ -27,13 +24,11 @@ To install as a docker package, do the following (after installing mountainlab a
 
   mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/pyms pyms
   mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/mountainsortalg mountainsortalg
+  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/ms3 ms3
 
-Note that you (and any users of the software) should be in the "docker" group in order to use docker. Note that this essentially means that you will have root access to the machine.
+Note that you (and any users of the software) should be in the "docker" group in order to use docker. (Note that this essentially means that you will have root access to the machine.)
 
-Installing as a standalone program
-----------------------------------
-
-First install the following prerequisites:
+If you want to install it without docker, you must first install the following prerequisites:
 
 * `Qt5 <http://mountainlab.readthedocs.io/en/latest/installation/qt5_installation.html>`_
 * Python3 with the needed packages
@@ -47,11 +42,18 @@ On Debian (e.g., Ubuntu 16.04) you can do the following to install python and th
   # Note: you may want to use a virtualenv or other system to manage your python packages
   pip3 install numpy scipy matplotlib pybind11 cppimport sklearn
 
-Then you must compile mountainsortalg using Qt5/C++:
+Then you must compile mountainsortalg and ms3 using Qt5/C++:
 
 .. code:: bash
   
+  cd mountainlab/packages
+  git clone https://github.com/flatironinstitute/mountainsort
+
   cd mountainsort/packages/mountainsortalg
+  qmake
+  make -j
+
+  cd ../../mountainsort/packages/ms3
   qmake
   make -j
 
@@ -113,16 +115,33 @@ If successful, then we can check the dimensions and datatype using the "mda" com
 	    "num_dims": 2
 	}
 
-All arrays are stored in the `.mda file format <http://mountainlab.readthedocs.io/en/latest/mda_file_format.html>`_.
+All arrays are stored in the `.mda file format <http://mountainlab.readthedocs.io/en/latest/mda_file_format.html>`_. If you have installed mountainview, you can visualize this pure noise dataset by running
 
-We can then filter it using the pyms.bandpass_filter processor (use mp-spec to determine the proper inputs/outputs).
+.. code:: bash
 
-If you are not using MountainLab, you can still run these commands with a bit more effort (and without the assistance of tools such as mp-spec, mp-list-processors, and mda):
+	> mountainview --raw=raw.mda --samplerate=30000
+
+We can then filter the timeseries using the pyms.bandpass_filter processor (use mp-spec to determine the proper inputs/outputs).
+
+If you are not using MountainLab, you can still run these commands with a bit more effort because you will not have the assistance of tools such as mp-spec, mp-list-processors, and mda:
 
 .. code:: bash
 
 	packages/pyms/basic/basic.mp pyms.synthesize_timeseries --timeseries_out=sim.mda --duration=10 --samplerate=30000
 
-You can also plunge into the python code itself to use these tools from within your python programs. However, note that all of the processors operate on files -- they do not load the arrays into memory.
+You can also plunge into the python code itself to use these tools from within your python programs. However, note that the processors operate on files rather than taking numpy arrays as arguments.
 
-If you are more comfortable in Matlab 
+If you are more comfortable in Matlab, or if your raw data is loadable into Matlab, ML has utilities for reading and writing .mda files and for wrapping ML processors. For example, the to generate the above data one could also execute (from within matlab):
+
+.. code:: matlab
+
+	cd mountainlab/matlab
+	mlsetup
+
+	inputs=struct();
+	outputs=struct('timeseries_out','tmp_raw.mda');
+	params=struct('duration',10,'samplerate',30000);
+	opts=struct;
+	mp_run_process('pyms.synthesize_timeseries',inputs,outputs,params,opts);
+	X=readmda('tmp_raw.mda');
+	disp(size(X));
