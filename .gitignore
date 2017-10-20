@@ -1,0 +1,7 @@
+*.mda
+__pycache__
+build
+.*.cppimporthash
+.rendered.*
+*.so
+geom.csv
