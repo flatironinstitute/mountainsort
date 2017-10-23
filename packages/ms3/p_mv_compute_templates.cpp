@@ -24,3 +24,69 @@ bool mv_compute_templates(const QString& timeseries_path, const QString& firings
     stdevs.write32(stdevs_out_path);
     return true;
 }
+
+QList<bool> evenly_distributed_to_use(int num, int num_to_use)
+{
+    QList<bool> ret;
+    for (int i = 0; i < num; i++) {
+        ret << false;
+    }
+    double stride = num * 1.0 / num_to_use; //will be greater than 1
+    double j = 0;
+    for (int i = 0; i < num_to_use; i++) {
+        ret[(int)j] = true;
+        j += stride;
+    }
+    return ret;
+}
+
+bool mv_subfirings(QString firings_path, QString firings_out_path, QVector<int> labels, int max_per_label)
+{
+    QMap<int, int> counts;
+    DiskReadMda F(firings_path);
+    QSet<int> set;
+    foreach (int label, labels) {
+        set.insert(label);
+    }
+    QList<int> inds;
+    QList<bool> to_use;
+    for (int j = 0; j < F.N2(); j++) {
+        int label = (int)F.value(2, j);
+        if (set.contains(label)) {
+            inds << j;
+            to_use << true;
+            counts[label]++;
+        }
+    }
+
+    if (max_per_label) {
+        int K = MLCompute::max<int>(labels);
+        for (int k = 0; k <= K; k++) {
+            if (counts[k] > max_per_label) {
+                QList<bool> to_use_k = evenly_distributed_to_use(counts[k], max_per_label);
+                int jj = 0;
+                for (int i = 0; i < inds.count(); i++) {
+                    int label = (int)F.value(2, inds[i]);
+                    if (label == k) {
+                        to_use[i] = to_use_k[jj];
+                        jj++;
+                    }
+                }
+            }
+        }
+    }
+
+    QList<int> inds2;
+    for (int i = 0; i < inds.count(); i++) {
+        if (to_use[i])
+            inds2 << inds[i];
+    }
+
+    Mda out(F.N1(), inds2.count());
+    for (int i = 0; i < inds2.count(); i++) {
+        for (int j = 0; j < F.N1(); j++) {
+            out.setValue(F.value(j, inds2[i]), j, i);
+        }
+    }
+    return out.write64(firings_out_path);
+}

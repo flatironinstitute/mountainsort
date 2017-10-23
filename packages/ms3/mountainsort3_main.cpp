@@ -321,6 +321,15 @@ QJsonObject get_spec()
         X.addOptionalParameter("clip_size","",200);
         processors.push_back(X.get_spec());
     }
+    {
+        ProcessorSpec X("ms3.mv_subfirings", "0.1");
+        X.addInputs("firings");
+        X.addOutputs("firings_out");
+        X.addRequiredParameter("labels");
+        X.addOptionalParameter("max_per_label","",0);
+        processors.push_back(X.get_spec());
+    }
+
 
     QJsonObject ret;
     ret["processors"] = processors;
@@ -663,6 +672,14 @@ int main(int argc, char* argv[])
         QString stdevs_out = CLP.named_parameters["stdevs_out"].toString();
         int clip_size = CLP.named_parameters["clip_size"].toInt();
         ret = mv_compute_templates(timeseries,firings,templates_out,stdevs_out,clip_size);
+    }
+    else if (arg1 == "ms3.mv_subfirings") {
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        QStringList labels_str = MLUtil::toStringList(CLP.named_parameters["labels"]);
+        QList<int> labels = MLUtil::stringListToIntList(labels_str);
+        bigint max_per_label = CLP.named_parameters["max_per_label"].toDouble();
+        ret = mv_subfirings(firings,firings_out,labels.toVector(),max_per_label);
     }
     else {
         qWarning() << "Unexpected processor name: " + arg1;
