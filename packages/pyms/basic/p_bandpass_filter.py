@@ -11,7 +11,7 @@ import cppimport
 cpp=cppimport.imp('bandpass_filter_cpp')
 
 processor_name='pyms.bandpass_filter'
-processor_version='0.11'
+processor_version='0.13'
 def bandpass_filter(*,timeseries,timeseries_out,samplerate=30000,freq_min=300,freq_max=6000,freq_wid=1000):
     """
     Apply a bandpass filter to a timeseries dataset
@@ -39,12 +39,14 @@ def bandpass_filter(*,timeseries,timeseries_out,samplerate=30000,freq_min=300,fr
     _writer=DiskWriteMda(timeseries_out,[M,N],dt='float32')
     
     chunk_size_mb=100
-    overlap_size=1000
+    overlap_size=100000
         
     def _kernel(chunk,info):
-        print('Processing chunk (%g%%)...' % (np.floor(info.t1/N*100)))
+        print('Processing chunk --- (%g%%)...' % (np.floor(info.t1/N*100)))
         chunk=chunk.astype('float32',copy=False)
-        cpp.bandpass_filter(chunk,samplerate,freq_min,freq_max,freq_wid)        
+        cpp.bandpass_filter(chunk,samplerate,freq_min,freq_max,freq_wid)   
+        print(chunk.shape)
+        print(info.t1,info.t2,info.t1a,info.t2a)
         return _writer.writeChunk(chunk[:,info.t1a:info.t2a+1],i1=0,i2=info.t1)
     
     TCR=TimeseriesChunkReader(chunk_size_mb=chunk_size_mb, overlap_size=overlap_size)    

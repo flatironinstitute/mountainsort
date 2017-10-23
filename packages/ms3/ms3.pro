@@ -72,6 +72,7 @@ HEADERS += \
     p_reorder_labels.h \
     p_bandpass_filter.h \
     p_mask_out_artifacts.h \
+    p_mv_compute_templates.h \
     hungarian.h
 
 SOURCES += \
@@ -92,6 +93,7 @@ SOURCES += \
     p_reorder_labels.cpp \
     p_bandpass_filter.cpp \
     p_mask_out_artifacts.cpp \
+    p_mv_compute_templates.cpp \
     hungarian.cpp
 
 HEADERS += pca.h compute_templates_0.h

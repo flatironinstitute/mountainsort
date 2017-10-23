@@ -42,6 +42,7 @@
 #include "p_confusion_matrix.h"
 #include "p_reorder_labels.h"
 #include "p_mask_out_artifacts.h"
+#include "p_mv_compute_templates.h"
 
 QJsonObject get_spec()
 {
@@ -305,7 +306,13 @@ QJsonObject get_spec()
         X.addOptionalParameter("interval_size","",2000);
         processors.push_back(X.get_spec());
     }
-
+    {
+        ProcessorSpec X("ms3.mv_compute_templates", "0.1");
+        X.addInputs("timeseries","firings");
+        X.addOutputs("templates_out","stdevs_out");
+        X.addOptionalParameter("clip_size","",200);
+        processors.push_back(X.get_spec());
+    }
 
     QJsonObject ret;
     ret["processors"] = processors;
@@ -632,6 +639,14 @@ int main(int argc, char* argv[])
         double threshold = CLP.named_parameters["threshold"].toDouble();
         bigint interval_size = CLP.named_parameters["interval_size"].toDouble();
         ret = p_mask_out_artifacts(timeseries,timeseries_out,threshold,interval_size);
+    }
+    else if (arg1 == "ms3.mv_compute_templates") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString templates_out = CLP.named_parameters["templates_out"].toString();
+        QString stdevs_out = CLP.named_parameters["stdevs_out"].toString();
+        int clip_size = CLP.named_parameters["clip_size"].toInt();
+        ret = mv_compute_templates(timeseries,firings,templates_out,stdevs_out,clip_size);
     }
     else {
         qWarning() << "Unexpected processor name: " + arg1;

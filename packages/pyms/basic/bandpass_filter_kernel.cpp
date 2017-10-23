@@ -189,6 +189,23 @@ void define_kernel(bigint N, double* kernel, double samplefreq, double freq_min,
 
 void bandpass_filter_kernel(bigint M,bigint N,float *X, double samplerate, double freq_min, double freq_max, double freq_wid, bigint start_write, bigint end_write)
 {
+    /*
+    //subtract channel means
+    double means[M];
+    for (int m=0; m<M; m++) means[m]=0;
+    for (bigint t=0; t<N; t++) {
+        for (int m=0; m<M; m++) {
+            means[m]+=X[m+M*t];
+        }
+    }
+    for (int m=0; m<M; m++) means[m]/=N;
+    for (bigint t=0; t<N; t++) {
+        for (int m=0; m<M; m++) {
+            X[m+M*t]-=means[m];
+        }
+    }
+    */
+
     bigint MN = M * N;
     
     double* kernel0 = (double*)malloc(sizeof(double) * N);
@@ -222,8 +239,23 @@ Mda32 subsample(const Mda32& timeseries, int subsample_factor)
 */
 
 void bandpass_filter_kernel_multithread(bigint M,bigint N,float *X, double samplerate, double freq_min, double freq_max, double freq_wid) {
-    bigint chunk_size = 20000;
-    bigint overlap_size = 2000;
+    bigint chunk_size =   200000;
+    bigint overlap_size = 20000;
+
+    //subtract channel means
+    double means[M];
+    for (int m=0; m<M; m++) means[m]=0;
+    for (bigint t=0; t<N; t++) {
+        for (int m=0; m<M; m++) {
+            means[m]+=X[m+M*t];
+        }
+    }
+    for (int m=0; m<M; m++) means[m]/=N;
+    for (bigint t=0; t<N; t++) {
+        for (int m=0; m<M; m++) {
+            X[m+M*t]-=means[m];
+        }
+    }
 
     #pragma omp parallel for
     for (bigint t=0; t<N; t+=chunk_size) {
