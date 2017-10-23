@@ -180,6 +180,14 @@ QJsonObject get_spec()
         processors.push_back(X.get_spec());
     }
     {
+        ProcessorSpec X("ms3.mv_extract_clips", "0.1");
+        X.addInputs("timeseries", "firings");
+        X.addOutputs("clips_out");
+        X.addRequiredParameters("clip_size");
+        X.addOptionalParameter("channels");
+        processors.push_back(X.get_spec());
+    }
+    {
         ProcessorSpec X("ms3.compute_templates", "0.11");
         X.addInputs("timeseries", "firings");
         X.addOutputs("templates_out");
@@ -504,6 +512,14 @@ int main(int argc, char* argv[])
         QStringList channels_str = CLP.named_parameters["channels"].toString().split(",", QString::SkipEmptyParts);
         QList<int> channels = MLUtil::stringListToIntList(channels_str);
         ret = p_extract_clips(timeseries_list, event_times, channels, clips_out, CLP.named_parameters);
+    }
+    else if (arg1 == "ms3.mv_extract_clips") {
+        QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString clips_out = CLP.named_parameters["clips_out"].toString();
+        QStringList channels_str = CLP.named_parameters["channels"].toString().split(",", QString::SkipEmptyParts);
+        QList<int> channels = MLUtil::stringListToIntList(channels_str);
+        ret = p_mv_extract_clips(timeseries_list, firings, channels, clips_out, CLP.named_parameters);
     }
     else if (arg1 == "ms3.compute_templates") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
