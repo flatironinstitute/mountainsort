@@ -11,10 +11,10 @@ import cppimport
 cpp=cppimport.imp('bandpass_filter_cpp')
 
 processor_name='pyms.bandpass_filter'
-processor_version='0.1'
+processor_version='0.11'
 def bandpass_filter(*,timeseries,timeseries_out,samplerate=30000,freq_min=300,freq_max=6000,freq_wid=1000):
     """
-    Normalize the channels in a timeseries array to each have unit variance
+    Apply a bandpass filter to a timeseries dataset
 
     Parameters
     ----------
@@ -36,7 +36,7 @@ def bandpass_filter(*,timeseries,timeseries_out,samplerate=30000,freq_min=300,fr
     """    
     X=DiskReadMda(timeseries)
     M,N = X.N1(),X.N2()    
-    _writer=DiskWriteMda(timeseries_out,[M,N],dt=X.dt())
+    _writer=DiskWriteMda(timeseries_out,[M,N],dt='float32')
     
     chunk_size_mb=100
     overlap_size=1000
