@@ -41,6 +41,7 @@
 #include "p_compute_amplitudes.h"
 #include "p_confusion_matrix.h"
 #include "p_reorder_labels.h"
+#include "p_mask_out_artifacts.h"
 
 QJsonObject get_spec()
 {
@@ -294,6 +295,14 @@ QJsonObject get_spec()
         X.addOptionalOutputs("matched_firings_out", "label_map_out", "firings2_relabeled_out", "firings2_relabel_map_out");
         X.addOptionalParameter("max_matching_offset", "", 30);
         X.addOptionalParameter("relabel_firings2", "", "false");
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.mask_out_artifacts", "0.1");
+        X.addInputs("timeseries");
+        X.addOutputs("timeseries_out");
+        X.addOptionalParameter("threshold","",6);
+        X.addOptionalParameter("interval_size","",2000);
         processors.push_back(X.get_spec());
     }
 
@@ -616,6 +625,13 @@ int main(int argc, char* argv[])
         }
         opts.relabel_firings2 = (CLP.named_parameters.value("relabel_firings2", "false").toString() == "true");
         ret = p_confusion_matrix(firings1, firings2, confusion_matrix_out, matched_firings_out, label_map_out, firings2_relabeled_out, firings2_relabel_map_out, opts);
+    }
+    else if (arg1 == "ms3.mask_out_artifacts") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
+        double threshold = CLP.named_parameters["threshold"].toDouble();
+        bigint interval_size = CLP.named_parameters["interval_size"].toDouble();
+        ret = p_mask_out_artifacts(timeseries,timeseries_out,threshold,interval_size);
     }
     else {
         qWarning() << "Unexpected processor name: " + arg1;
