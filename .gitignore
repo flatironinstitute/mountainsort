@@ -8,4 +8,4 @@ build
 geom.csv
 Makefile
 *.pro.user
-
+.idea
