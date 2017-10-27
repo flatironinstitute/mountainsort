@@ -1,0 +1,9 @@
+First install python3 and python3-pip
+
+Install the python packages
+> pip3 install numpy scipy pybind11 cppimport 
+> pip3 install sklearn
+
+Install the C++ packages
+> ./compile_components.sh
+

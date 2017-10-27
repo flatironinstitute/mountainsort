@@ -33,7 +33,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = mountainsortalg.mp1.0.0
-DISTDIR = /home/magland/dev/mountainlab/packages/mountainsortalg/build/mountainsortalg.mp1.0.0
+DISTDIR = /home/magland/dev/mountainlab/packages/mountainsort/packages/mountainsortalg/build/mountainsortalg.mp1.0.0
 LINK          = g++
 LFLAGS        = -m64 -fopenmp -Wl,-O1
 LIBS          = $(SUBLIBS) -lQt5Core -lpthread 
@@ -104,9 +104,9 @@ OBJECTS       = build/compute_templates_0.o \
 		build/clparams.o \
 		build/textfile.o \
 		build/mlutil.o
-DIST          = ../../features/ml_functions.prf \
-		../../features/ml_config.prf \
-		../../.qmake.conf \
+DIST          = ../../../../features/ml_functions.prf \
+		../../../../features/ml_config.prf \
+		../../../../.qmake.conf \
 		mountainsortalg.pro compute_templates_0.h \
 		consolidate_clusters.h \
 		detect_events.h \
@@ -195,7 +195,7 @@ $(TARGET):  $(OBJECTS)
 	@test -d bin/ || mkdir -p bin/
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
-Makefile.mountainsortalg: mountainsortalg.pro ../../.qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
+Makefile.mountainsortalg: mountainsortalg.pro ../../../../.qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/sanitize.conf \
@@ -233,6 +233,8 @@ Makefile.mountainsortalg: mountainsortalg.pro ../../.qmake.conf /usr/lib/x86_64-
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_testlib.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_testlib_private.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_webkit.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri \
@@ -242,9 +244,9 @@ Makefile.mountainsortalg: mountainsortalg.pro ../../.qmake.conf /usr/lib/x86_64-
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf \
-		../../features/ml_functions.prf \
-		../../features/ml_config.prf \
-		../../.qmake.conf \
+		../../../../features/ml_functions.prf \
+		../../../../features/ml_config.prf \
+		../../../../.qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/resolve_config.prf \
@@ -300,6 +302,8 @@ Makefile.mountainsortalg: mountainsortalg.pro ../../.qmake.conf /usr/lib/x86_64-
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_testlib.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_testlib_private.pri:
+/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_webkit.pri:
+/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_widgets_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri:
@@ -309,9 +313,9 @@ Makefile.mountainsortalg: mountainsortalg.pro ../../.qmake.conf /usr/lib/x86_64-
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf:
-../../features/ml_functions.prf:
-../../features/ml_config.prf:
-../../.qmake.conf:
+../../../../features/ml_functions.prf:
+../../../../features/ml_config.prf:
+../../../../.qmake.conf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/resolve_config.prf:
