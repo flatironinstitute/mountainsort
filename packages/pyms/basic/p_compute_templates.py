@@ -3,6 +3,7 @@ import numpy as np
 import sys,os
 parent_path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_path)
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from mlpy import writemda64,writemda32,readmda,DiskReadMda
 from common import TimeseriesChunkReader
