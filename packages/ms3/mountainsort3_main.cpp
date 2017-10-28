@@ -43,6 +43,7 @@
 #include "p_reorder_labels.h"
 #include "p_mask_out_artifacts.h"
 #include "p_mv_compute_templates.h"
+#include "p_mv_compute_amplitudes.h"
 
 QJsonObject get_spec()
 {
@@ -327,6 +328,12 @@ QJsonObject get_spec()
         X.addOutputs("firings_out");
         X.addRequiredParameter("labels");
         X.addOptionalParameter("max_per_label","",0);
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.mv_compute_amplitudes", "0.1");
+        X.addInputs("timeseries", "firings");
+        X.addOutputs("firings_out");
         processors.push_back(X.get_spec());
     }
 
@@ -680,6 +687,13 @@ int main(int argc, char* argv[])
         QList<int> labels = MLUtil::stringListToIntList(labels_str);
         bigint max_per_label = CLP.named_parameters["max_per_label"].toDouble();
         ret = mv_subfirings(firings,firings_out,labels.toVector(),max_per_label);
+    }
+    else if (arg1 == "ms3.mv_compute_amplitudes") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString firings_out = CLP.named_parameters["firings_out"].toString();
+        p_mv_compute_amplitudes_opts opts;
+        ret = p_mv_compute_amplitudes(timeseries, firings, firings_out, opts);
     }
     else {
         qWarning() << "Unexpected processor name: " + arg1;

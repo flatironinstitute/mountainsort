@@ -73,6 +73,7 @@ HEADERS += \
     p_bandpass_filter.h \
     p_mask_out_artifacts.h \
     p_mv_compute_templates.h \
+    p_mv_compute_amplitudes.h extract_clips.h get_principal_components.h \
     hungarian.h
 
 SOURCES += \
@@ -94,6 +95,7 @@ SOURCES += \
     p_bandpass_filter.cpp \
     p_mask_out_artifacts.cpp \
     p_mv_compute_templates.cpp \
+    p_mv_compute_amplitudes.cpp extract_clips.cpp get_principal_components.cpp \
     hungarian.cpp
 
 HEADERS += pca.h compute_templates_0.h
