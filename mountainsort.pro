@@ -5,7 +5,7 @@ TEMPLATE = subdirs
 # qmake "COMPONENTS = mproc"
 
 isEmpty(COMPONENTS) {
-    COMPONENTS = mountainsortalg
+    COMPONENTS = mountainsortalg ms3
 }
 
 isEmpty(GUI) {
@@ -23,4 +23,5 @@ defineReplace(ifcomponent) {
 }
 
 SUBDIRS += $$ifcomponent(mountainsortalg,packages/mountainsortalg/mountainsortalg.pro)
+SUBDIRS += $$ifcomponent(ms3,packages/ms3/ms3.pro)
 
