@@ -5,8 +5,8 @@ MountainSort is spike sorting software developed by Jeremy Magland, Alex Barnett
 
 `Chung, Jason E., Jeremy F. Magland, Alex H. Barnett, Vanessa M. Tolosa, Angela C. Tooker, Kye Y. Lee, Kedar G. Shah, Sarah H. Felix, Loren M. Frank, and Leslie F. Greengard. "A Fully Automated Approach to Spike Sorting." Neuron 95, no. 6 (2017): 1381-1394. <http://www.cell.com/neuron/fulltext/S0896-6273(17)30745-6>`_
 
-Installation and Getting started
---------------------------------
+Installation
+------------
 
 There are various ways to install and/or use MountainSort. The best choice will depend on how you plan to interact with the program. You can use MountainSort...
 
@@ -14,55 +14,11 @@ There are various ways to install and/or use MountainSort. The best choice will 
 * as a standalone program
 * from the web interface (cloud computing)
 
-Here we will describe installation as a plugin to ML (recommended), and the remarks below will indicate how it could be used as a standalone program. MountainLab is a general framework for scientific data analysis, sharing, and visualization. See `<https://mountainlab.readthedocs.org>`_ for instructions on installing MountainLab.
+Here we will describe installation as a plugin to ML (recommended), and the remarks below will indicate how it could be used as a standalone program. MountainLab is a general framework for scientific data analysis, sharing, and visualization.
 
-After that, you can either install MountainSort via docker as described below, or by cloning the mountainsort repository into the mountainlab/packages directory and then following the compilation instructions below. In that location (mountainlab/packages), ML will automatically detect it as a plugin.
+Instructions for installing MountainSort are included as part of the `MountainLab installation instructions <https://mountainlab.readthedocs.org>`_.
 
-To install as a docker package, do the following (after installing mountainlab and a recent version of docker of course):
-
-.. code:: bash
-
-  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/pyms pyms
-  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/mountainsortalg mountainsortalg
-  mldock install https://github.com/flatironinstitute/mountainsort.git#master:packages/ms3 ms3
-
-Note that you (and any users of the software) should be in the "docker" group in order to use docker. (Note that this essentially means that you will have root access to the machine.)
-
-If you want to install it without docker, you must first install the following prerequisites:
-
-* `Qt5 <http://mountainlab.readthedocs.io/en/latest/installation/qt5_installation.html>`_
-* Python3 with the needed packages
-
-On Debian (e.g., Ubuntu 16.04) you can do the following to install python and the required packages
-
-.. code:: bash
-
-  sudo apt-get install python3 python3-pip
-
-  # Note: you may want to use a virtualenv or other system to manage your python packages
-  pip3 install numpy scipy matplotlib pybind11 cppimport sklearn
-
-Then you must compile mountainsortalg and ms3 using Qt5/C++:
-
-.. code:: bash
-  
-  cd mountainlab/packages
-  git clone https://github.com/flatironinstitute/mountainsort
-
-  cd mountainsort/packages/mountainsortalg
-  qmake
-  make -j
-
-  cd ../../mountainsort/packages/ms3
-  qmake
-  make -j
-
-Note that there is also C++ code in the python part (pyms), but that will get compiled on the fly by cppimport and pybind11.
-
-Installing MountainView
------------------------
-
-You will probably want to visualize your spike sorting results. It is recommended that you install `MountainView <https://github.com/flatironinstitute/mountainview.git>`_.
+You will probably want to visualize your spike sorting results. It is recommended that you install MountainView. Instructions for this are also provided in the above link.
 
 Testing the installation
 ------------------------
@@ -78,7 +34,40 @@ At the time of writing these docs, I have the following processors:
 .. code:: bash
 
 	magland@dub:~/dev/mountainsort/docs$ mp-list-processors 
+	banjoview.cross_correlograms
 	mountainsortalg.ms3
+	ms3.apply_timestamp_offset
+	ms3.apply_whitening_matrix
+	ms3.bandpass_filter
+	ms3.cluster_metrics
+	ms3.combine_cluster_metrics
+	ms3.combine_firing_segments
+	ms3.combine_firings
+	ms3.compute_amplitudes
+	ms3.compute_templates
+	ms3.compute_whitening_matrix
+	ms3.concat_event_times
+	ms3.concat_firings
+	ms3.concat_timeseries
+	ms3.confusion_matrix
+	ms3.create_firings
+	ms3.create_multiscale_timeseries
+	ms3.extract_clips
+	ms3.extract_firings
+	ms3.isolation_metrics
+	ms3.link_segments
+	ms3.load_test
+	ms3.mask_out_artifacts
+	ms3.mv_compute_amplitudes
+	ms3.mv_compute_templates
+	ms3.mv_extract_clips
+	ms3.mv_subfirings
+	ms3.reorder_labels
+	ms3.run_metrics_script
+	ms3.split_firings
+	ms3.synthesize_timeseries
+	ms3.whiten
+	ms3.whiten_clips
 	pyms.bandpass_filter
 	pyms.compute_templates
 	pyms.concatenate_firings
@@ -92,6 +81,8 @@ At the time of writing these docs, I have the following processors:
 	pyms.synthesize_random_firings
 	pyms.synthesize_random_waveforms
 	pyms.synthesize_timeseries
+	spikeview.metrics1
+	spikeview.templates
 
 To see the inputs/outputs for each of these registered processors, use the mp-spec command as described in the MountainLab documentation.
 
