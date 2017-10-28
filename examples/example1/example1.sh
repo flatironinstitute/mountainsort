@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# You must first install MountainLab and set up MountainSort as a plugin package 
+# You should also install MountainView
+
 set -e
 
 duration=600
