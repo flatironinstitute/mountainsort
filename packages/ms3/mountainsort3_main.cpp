@@ -18,7 +18,7 @@
 #include "p_spikeview_metrics.h"
 #include "p_spikeview_templates.h"
 #include "omp.h"
-#include "p_synthesize_timeseries.h"
+//#include "p_synthesize_timeseries.h"
 #include "p_combine_firing_segments.h"
 #include "p_extract_firings.h"
 #include "p_concat_timeseries.h"
@@ -83,6 +83,7 @@ QJsonObject get_spec()
         X.addOptionalParameter("clusters", "", "");
         processors.push_back(X.get_spec());
     }
+    /*
     {
         ProcessorSpec X("ms3.synthesize_timeseries", "0.12");
         X.addInputs("firings", "waveforms");
@@ -92,6 +93,7 @@ QJsonObject get_spec()
         X.addOptionalParameter("waveform_upsample_factor", "", 13);
         processors.push_back(X.get_spec());
     }
+    */
     {
         ProcessorSpec X("ms3.combine_firing_segments", "0.13");
         X.addInputs("timeseries", "firings_list");
@@ -418,6 +420,7 @@ int main(int argc, char* argv[])
         }
         ret = p_banjoview_cross_correlograms(firings, correlograms_out, opts);
     }
+    /*
     else if (arg1 == "ms3.synthesize_timeseries") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString waveforms = CLP.named_parameters["waveforms"].toString();
@@ -428,6 +431,7 @@ int main(int argc, char* argv[])
         opts.waveform_upsample_factor = CLP.named_parameters.value("waveform_upsample_factor", 13).toDouble();
         ret = p_synthesize_timeseries(firings, waveforms, timeseries_out, opts);
     }
+    */
     else if (arg1 == "ms3.combine_firing_segments") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QStringList firings_list = MLUtil::toStringList(CLP.named_parameters["firings_list"]);
