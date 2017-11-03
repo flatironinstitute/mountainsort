@@ -102,7 +102,7 @@ QJsonObject get_spec()
         processors.push_back(X.get_spec());
     }
     {
-        ProcessorSpec X("ms3.extract_firings", "0.1");
+        ProcessorSpec X("ms3.extract_firings", "0.2");
         X.addInputs("firings");
         X.addOptionalInputs("metrics");
         X.addOutputs("firings_out");
@@ -249,6 +249,7 @@ QJsonObject get_spec()
         X.addOptionalParameter("compute_bursting_parents", "", "false");
         processors.push_back(X.get_spec());
     }
+    /*
     {
         ProcessorSpec X("ms3.extract_firings", "0.11");
         X.addInputs("firings");
@@ -256,6 +257,7 @@ QJsonObject get_spec()
         X.addInputs("clusters");
         processors.push_back(X.get_spec());
     }
+    */
     {
         ProcessorSpec X("ms3.combine_cluster_metrics", "0.1");
         X.addInputs("metrics_list");
@@ -615,6 +617,7 @@ int main(int argc, char* argv[])
         QStringList firings_out_list = MLUtil::toStringList(CLP.named_parameters["firings_out_list"]);
         ret = p_split_firings(timeseries_list, firings, firings_out_list);
     }
+    /*
     else if (arg1 == "ms3.extract_firings") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
@@ -622,6 +625,7 @@ int main(int argc, char* argv[])
         QSet<int> clusters = MLUtil::stringListToIntList(clusters_str).toSet();
         ret = p_extract_firings(firings, clusters, firings_out);
     }
+    */
     else if (arg1 == "ms3.concat_firings") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
         QStringList firings_list = MLUtil::toStringList(CLP.named_parameters["firings_list"]);
