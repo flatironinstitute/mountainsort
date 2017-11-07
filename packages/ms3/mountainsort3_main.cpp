@@ -44,6 +44,7 @@
 #include "p_mask_out_artifacts.h"
 #include "p_mv_compute_templates.h"
 #include "p_mv_compute_amplitudes.h"
+#include "p_mv_discrimhist.h"
 
 QJsonObject get_spec()
 {
@@ -191,6 +192,13 @@ QJsonObject get_spec()
         processors.push_back(X.get_spec());
     }
     {
+        ProcessorSpec X("ms3.mv_extract_clips_features", "0.1");
+        X.addInputs("timeseries", "firings");
+        X.addOutputs("features_out");
+        X.addRequiredParameters("clip_size","num_features","subtract_mean");
+        processors.push_back(X.get_spec());
+    }
+    {
         ProcessorSpec X("ms3.compute_templates", "0.11");
         X.addInputs("timeseries", "firings");
         X.addOutputs("templates_out");
@@ -271,6 +279,13 @@ QJsonObject get_spec()
         X.addInputs("timeseries_list", "firings");
         X.addOutputs("firings_out_list");
         //X.addRequiredParameters();
+        processors.push_back(X.get_spec());
+    }
+    {
+        ProcessorSpec X("ms3.mv_discrimhist", "0.1");
+        X.addInputs("timeseries", "firings");
+        X.addOutputs("output");
+        X.addRequiredParameters("clusters");
         processors.push_back(X.get_spec());
     }
     {
@@ -543,6 +558,15 @@ int main(int argc, char* argv[])
         QList<int> channels = MLUtil::stringListToIntList(channels_str);
         ret = p_mv_extract_clips(timeseries_list, firings, channels, clips_out, CLP.named_parameters);
     }
+    else if (arg1 == "ms3.mv_extract_clips_features") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString features_out = CLP.named_parameters["features_out"].toString();
+        int clip_size = CLP.named_parameters["clip_size"].toInt();
+        int num_features = CLP.named_parameters["num_features"].toInt();
+        int subtract_mean = CLP.named_parameters["subtract_mean"].toInt();
+        ret = p_mv_extract_clips_features(timeseries, firings, features_out, clip_size, num_features, subtract_mean);
+    }
     else if (arg1 == "ms3.compute_templates") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
         QString firings = CLP.named_parameters["firings"].toString();
@@ -620,6 +644,17 @@ int main(int argc, char* argv[])
         QString firings = CLP.named_parameters["firings"].toString();
         QStringList firings_out_list = MLUtil::toStringList(CLP.named_parameters["firings_out_list"]);
         ret = p_split_firings(timeseries_list, firings, firings_out_list);
+    }
+    else if (arg1 == "ms3.mv_discrimhist") {
+        QString timeseries = CLP.named_parameters["timeseries"].toString();
+        QString firings = CLP.named_parameters["firings"].toString();
+        QString output = CLP.named_parameters["output"].toString();
+        mv_discrimhist_opts opts;
+        {
+            QStringList clusters_str = CLP.named_parameters["clusters"].toString().split(",");
+            opts.clusters = MLUtil::stringListToIntList(clusters_str);
+        }
+        ret = mv_discrimhist(timeseries, firings, output, opts);
     }
     /*
     else if (arg1 == "ms3.extract_firings") {

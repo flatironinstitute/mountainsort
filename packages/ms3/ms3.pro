@@ -40,7 +40,8 @@ SOURCES += \
     p_banjoview_cross_correlograms.cpp \
     kdtree.cpp \
     get_sort_indices.cpp \
-    p_create_multiscale_timeseries.cpp
+    p_create_multiscale_timeseries.cpp \
+    p_mv_discrimhist.cpp
 
 HEADERS += \
     mountainsort3_main.h \
@@ -52,7 +53,8 @@ HEADERS += \
     p_extract_firings.h \
     kdtree.h \
     get_sort_indices.h \
-    p_create_multiscale_timeseries.h
+    p_create_multiscale_timeseries.h \
+    p_mv_discrimhist.h
 
 HEADERS += \
     p_extract_clips.h \

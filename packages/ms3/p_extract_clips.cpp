@@ -7,6 +7,8 @@
 #include "p_extract_clips.h"
 #include "diskreadmda32.h"
 #include "diskreadmda.h"
+#include "extract_clips.h"
+#include "pca.h"
 
 #include <diskwritemda.h>
 
@@ -116,4 +118,29 @@ Mda32 extract_channels_from_chunk(const Mda32& X, const QList<int>& channels)
     }
     return ret;
 }
+}
+
+
+
+
+bool p_mv_extract_clips_features(QString timeseries_path, QString firings_path, QString features_out_path, int clip_size, int num_features, int subtract_mean)
+{
+    DiskReadMda32 X(timeseries_path);
+    DiskReadMda F(firings_path);
+    QVector<double> times;
+    for (int i = 0; i < F.N2(); i++) {
+        times << F.value(1, i);
+    }
+    Mda32 clips = extract_clips(X, times, clip_size);
+    int M = clips.N1();
+    int T = clips.N2();
+    int L = clips.N3();
+    Mda clips_reshaped(M * T, L);
+    int NNN = M * T * L;
+    for (int iii = 0; iii < NNN; iii++) {
+        clips_reshaped.set(clips.get(iii), iii);
+    }
+    Mda CC, FF, sigma;
+    pca(CC, FF, sigma, clips_reshaped, num_features, subtract_mean);
+    return FF.write32(features_out_path);
 }
