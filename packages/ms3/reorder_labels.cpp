@@ -2,6 +2,9 @@
 
 #include <QVector>
 #include <mda32.h>
+#include <cmath>
+using std::sqrt;
+
 
 struct template_comparer_struct {
     int channel;

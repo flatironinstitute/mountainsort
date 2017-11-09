@@ -13,6 +13,9 @@
 #include "fit_stage.h"
 #include "compute_templates_0.h"
 
+#include <cmath>
+using std::sqrt;
+
 namespace MountainSort3 {
 
 struct TimeChunkInfo {

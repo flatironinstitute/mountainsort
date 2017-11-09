@@ -8,6 +8,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <cmath>
+using std::fabs;
+using std::erf;
+using std::sqrt;
 
 namespace P_bandpass_filter {
 void define_kernel(bigint N, double* kernel, double samplefreq, double freq_min, double freq_max, double freq_wid);

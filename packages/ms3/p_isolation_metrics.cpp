@@ -14,6 +14,8 @@
 #include "kdtree.h"
 #include "compute_templates_0.h"
 #include "textfile.h"
+#include <cmath>
+using std::sqrt;
 
 namespace P_isolation_metrics {
 Mda32 extract_clips(const DiskReadMda32& X, const QVector<double>& times, int clip_size);

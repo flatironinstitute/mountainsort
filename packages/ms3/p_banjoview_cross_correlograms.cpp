@@ -7,6 +7,8 @@
 #include <mlvector.h>
 #include "get_sort_indices.h"
 #include "textfile.h"
+#include <cmath>
+using std::ceil;
 
 bool p_banjoview_cross_correlograms(QString firings_path, QString correlograms_out, P_banjoview_cross_correlograms_opts opts)
 {

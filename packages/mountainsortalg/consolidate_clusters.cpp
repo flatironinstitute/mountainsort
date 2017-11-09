@@ -1,4 +1,7 @@
 #include "consolidate_clusters.h"
+#include <cmath>
+using std::fabs;
+using std::sqrt;
 
 bool should_use_template(const Mda32& template0, Consolidate_clusters_opts opts);
 

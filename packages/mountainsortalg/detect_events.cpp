@@ -1,4 +1,7 @@
 #include "detect_events.h"
+#include <cmath>
+
+using std::fabs;
 
 /*
 QVector<double> detect_events(const QVector<double>& X, double detect_threshold, double detect_interval, int sign)

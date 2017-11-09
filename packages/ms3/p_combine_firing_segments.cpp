@@ -8,6 +8,8 @@
 #include "omp.h"
 #include "pca.h"
 #include "kdtree.h"
+#include <cmath>
+using std::sqrt;
 
 namespace P_combine_firing_segments {
 

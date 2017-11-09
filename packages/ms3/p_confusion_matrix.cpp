@@ -5,6 +5,8 @@
 #include "get_sort_indices.h"
 
 #include <diskreadmda.h>
+#include <cmath>
+using std::fabs;
 
 namespace P_confusion_matrix {
 struct MFEvent {
