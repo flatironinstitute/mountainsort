@@ -18,7 +18,7 @@ QJsonObject get_spec()
 {
     QJsonArray processors;
     {
-        ProcessorSpec X("mountainsortalg.ms3", "0.1");
+        ProcessorSpec X("mountainsortalg.ms3alg", "0.1");
         X.addInputs("timeseries");
         X.addOptionalInputs("geom");
         X.addOutputs("firings_out");
@@ -33,7 +33,14 @@ QJsonObject get_spec()
         X.addOptionalParameter("fit_stage", "", "true");
         X.addOptionalParameter("t1", "Start timepoint to do the sorting (default 0 means start at beginning)", 0);
         X.addOptionalParameter("t2", "End timepoint for sorting (default -1 means go to end of timeseries)", -1);
-        processors.push_back(X.get_spec());
+        QJsonObject spec0=X.get_spec();
+        processors.push_back(spec0);
+        spec0["name"]="mountainsortalg.ms3"; //backward compatibility
+        spec0["description"]="WARNING! Please use mountainsortalg.ms3alg rather than mountainsortalg.ms3. Right now they are equivalent, but the latter will be removed in the future.";
+        QString str=spec0["exe_command"].toString();
+        str=str.replace(".ms3alg",".ms3");
+        spec0["exe_command"]=str;
+        processors.push_back(spec0);
     }
 
     QJsonObject ret;
@@ -66,7 +73,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (arg1 == "mountainsortalg.ms3") {
+    if ((arg1 == "mountainsortalg.ms3alg")||(arg1 == "mountainsortalg.ms3")) {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString geom = CLP.named_parameters["geom"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
@@ -84,6 +91,14 @@ int main(int argc, char* argv[])
         opts.t2 = CLP.named_parameters.value("t2").toDouble();
         QString temp_path = CLP.named_parameters.value("_tempdir").toString();
         ret = p_mountainsort3(timeseries, geom, firings_out, temp_path, opts);
+
+        if (arg1 == "mountainsortalg.ms3") {
+            qWarning() << "********************************************************************************************************************************";
+            qWarning() << "WARNING! Please use mountainsortalg.ms3alg rather than mountainsortalg.ms3. Right now they are equivalent, but the latter will be removed in the future.";
+            qWarning() << "********************************************************************************************************************************";
+            qWarning() << "";
+            qWarning() << "";
+        }
     }
     /*
     else if (arg1 == "mountainsort.run_metrics_script") {
