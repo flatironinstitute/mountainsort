@@ -3,6 +3,9 @@
 #include <QTime>
 #include <mda32.h>
 #include "mda.h"
+#include <cmath>
+using std::fabs;
+using std::sqrt;
 
 namespace P_reorder_labels {
 struct template_comparer_struct {

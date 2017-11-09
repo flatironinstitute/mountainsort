@@ -3,7 +3,12 @@
 #include <QTime>
 #include <diskreadmda32.h>
 #include <mda.h>
+#include <cmath>
+using std::fabs;
+using std::erf;
+using std::sqrt;
 #include "fftw3.h"
+
 
 namespace P_spikeview_templates {
 struct ClusterData {

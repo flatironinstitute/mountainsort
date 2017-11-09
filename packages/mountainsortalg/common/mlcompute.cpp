@@ -1,4 +1,6 @@
 #include "mlcompute.h"
+#include <cmath>
+using std::sqrt;
 
 double MLCompute::min(const QVector<double>& X)
 {

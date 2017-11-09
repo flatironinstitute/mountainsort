@@ -6,6 +6,8 @@
 #include <mda.h>
 #include "pca.h"
 #include "omp.h"
+#include <cmath>
+using std::floor;
 
 namespace P_whiten {
 
