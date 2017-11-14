@@ -23,7 +23,7 @@ mp-run-process pyms.synthesize_timeseries \
 			--samplerate=$samplerate --duration=$duration
 
 # Preprocessing (create filt.mda and pre.mda)
-mp-run-process pyms.bandpass_filter \
+mp-run-process ms3.bandpass_filter \
 			--timeseries=raw.mda --timeseries_out=filt.mda \
 			--samplerate=$samplerate --freq_min=300 --freq_max=6000 --freq_wid=1000
 

@@ -3,7 +3,7 @@ You should also install MountainView
 
 Then:
 
-cd example1
+cd example1_bash
 ./example1.sh
 
 
