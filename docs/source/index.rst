@@ -26,7 +26,7 @@ If you do not have a linux machine available, we recommend setting up an `Ubuntu
 Installation
 ------------------------
 
-The following instructions are for using the debbian packages (recommended). Installation instructions for developers (requiring compilation) can be found here :doc: `installation_advanced>`. 
+The following instructions are for using the debbian packages (recommended). Installation instructions for developers (requiring compilation) can be found here :doc:`installation_advanced`. 
 
 1. Install MountainLab debbian package
 2. Install the MLPipeline package into mountainlab
@@ -62,4 +62,4 @@ To test the installation:
 
   view raw.mda geom.csv params.json firings.mda
 
-You are now ready to sort your own data :doc: `first_sort`
+You are now ready to sort your own data :doc:`first_sort`
