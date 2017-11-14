@@ -16,12 +16,6 @@ There are various ways to install and/or use MountainSort. The best choice will 
 
 Below, we will describe installation as a plugin to ML (recommended), and the remarks below will indicate how it could be used as a standalone program. MountainLab is a general framework for scientific data analysis, sharing, and visualization.
 
-#REMOVE
-Instructions for installing MountainSort are included as part of the `MountainLab installation instructions <https://mountainlab.readthedocs.org>`_.
-
-You will probably want to visualize your spike sorting results. It is recommended that you install MountainView. Instructions for this are also provided in the above link.
-#
-
 Supported operating systems
 ---------------------------
 
@@ -32,7 +26,7 @@ If you do not have a linux machine available, we recommend setting up an `Ubuntu
 Installation
 ------------------------
 
-The following instructions are for using the debbian packages (recommended). Installation instructions for developers (requiring compilation) can be found `here <installation_advanced.rst>`_. 
+The following instructions are for using the debbian packages (recommended). Installation instructions for developers (requiring compilation) can be found here :doc: `installation_advanced>`. 
 
 1. Install MountainLab debbian package
 2. Install the MLPipeline package into mountainlab
@@ -68,4 +62,4 @@ To test the installation:
 
   view raw.mda geom.csv params.json firings.mda
 
-You are now ready to `sort your own data <first_sort.rst>`_
+You are now ready to sort your own data :doc: `first_sort`
