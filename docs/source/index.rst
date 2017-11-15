@@ -55,7 +55,7 @@ To test the installation, run the following commands from the terminal:
 
 .. code:: bash
 
-  mlp-run synthesize_v1.mlp synthesize --samplerate=30000 --duration=60 --timeseries=raw.mda --geom=geom.csv --waveforms_true=waveforms_true.mda
+  mlp-run synthesize_v1.mlp synthesize --samplerate=30000 --duration=600 --timeseries=raw.mda --geom=geom.csv --waveforms_true=waveforms_true.mda
 
 This will generate test raw data 'raw.mda', geometry data 'geom.csv', and waveform data 'waveforms_true.mda' in the current directory
 
