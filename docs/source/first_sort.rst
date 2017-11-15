@@ -195,7 +195,7 @@ You can launch the sorting results in the MountainView GUI using:
 
 .. code ::
 
-    mountainview --raw=raw.mda --geom=geom.csv --firings=firings.mda
+    mountainview --raw=raw.mda --geom=geom.csv --firings=firings.mda --samplerate=30000
 
 Other arguments can be passed to mountainview, allowing for other timeseries (filtered and preprocessed/whitened data) and metrics to be viewed.
 

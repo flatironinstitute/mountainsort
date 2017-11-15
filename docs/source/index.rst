@@ -69,10 +69,10 @@ You will now call the mountainsort3 sort pipeline, passing it the newly-created 
 
 3. View the test sorting
 
-The GUI only requires a timeseries, in this case raw data, 'raw.mda', and the firings information (times/labels), 'firings.mda'.
+The GUI only requires a timeseries, in this case raw data, 'raw.mda', and the firings information (times/labels), 'firings.mda'. We can also pass it the geometry information and samplerate.
 .. code:: bash
 
-  mountainview --raw=raw.mda --firings=firings.mda
+  mountainview --raw=raw.mda --firings=firings.mda --geom=geom.csv --samplerate=30000
 
 4. Re-sort the data with automated curation (masking of low-quality clusters and bursting-related merging)
 
@@ -86,7 +86,7 @@ This time, you will add the automated curation option, '--curate=true'. This wil
 
 .. code:: bash
 
-  mountainview --raw=raw.mda --firings=firings2.mda
+  mountainview --raw=raw.mda --firings=firings2.mda --geom=geom.csv --samplerate=30000
 
 Note that sorting low signal-to-noise ratio data with relabeling may result in there being no apparent clusters (all clusters are of low quality). For this reason, we suggest first sorting your data without curation.
  
