@@ -5,10 +5,9 @@ Sorting your own data will require a few steps that will be outlined on this pag
     1. Convert raw data into the .mda file format
     2. Create geometry configuration file (geom.csv)
     3. Specify parameters (ie. sampling rate)
-    4. Designate curation/annotation guidelines (curation.script)
-    5. Build the sorting pipeline
-    6. Sort the data
-    7. Visualize the output
+    4. Select the sorting pipeline
+    5. Sort the data
+    6. Visualize the output
 
 Preparing raw data
 ==================
@@ -51,7 +50,20 @@ Using python3/numpy
 
 If your data is in a format that can be loaded using python3/numpy, then you can create the raw.mda using the functions provided in packages/pymountainsort/mlpy
 
-[Request for help: could somebody write more details on this]
+You will want to use the writemda functions
+
+.. code :: python
+
+	import numpy as np
+        cd mountainlab/packages/mountainsort/packages/pyms
+
+	from mlpy import writemda16i, writemda32
+
+	# prepare your MxN array called X
+
+	writemda16i(X,'raw.mda')
+
+	# If you need to save as float32 type, use writemda32(X,'raw.mda')
 
 MDA file format
 ===============
@@ -159,26 +171,40 @@ You can also specify whether to look for positive spike peaks (detect_sign=1), n
 
     {"samplerate":30000, "detect_sign":-1}
 
-Select the curation script
-==========================
-
-Curation scripts are typically 
 
 Select the sorting pipeline
 ==========================
 
+With MountainSort, there is the mountainsort3 pipeline included, and you can also build your own pipeline :doc:`processing_pipelines`.
+
+The mountainsort3 pipeline is found in 'mountainlab/packages/mountainsort/pipelines'
+
 Sort the data
 ==========================
+
+You will now call the sorting pipeline, passing it the paths to the timeseries, geometry information, and parameters files. Assuming that you are running it from the directory where all the files are, and mountainlab was installed in your home directory:
+
+.. code:: bash
+
+  mlp-run ~/mountainlab/packages/mountainsort/pipelines/mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings2.mda --_params=params.json --curate=true
 
 View the output
 ==========================
 
 You can launch the sorting results in the MountainView GUI using:
 
+.. code ::
+
+    mountainview --raw=raw.mda --geom=geom.csv --firings=firings.mda
+
+Other arguments can be passed to mountainview, allowing for other timeseries (filtered and preprocessed/whitened data) and metrics to be viewed.
+
+All arguments are the paths to the relevant file
 
 .. code ::
 
-    mountainview --raw= --geom= --firings= --curation= 
+    mountainview --raw=raw.mda --filt=filt.mda --pre=pre.mda --geom=geom.csv --firings=firings.mda --metrics=metrics.json
+
 
 Accessing the output
 ==========================
@@ -207,11 +233,15 @@ Further rows may be used in the future for providing reliability metrics for ind
 The curated firings
 -------------------------
 
-If a pipeline is used that contains a curation or annotation script, there will also be a firings which has been automatically curated, (ie. having putative noise clusters removed). This is typically named "curated.firings.mda", and will take the same form as described above, but will typically have clusters removed.
+If a pipeline is used that contains a curation step, the firings would have been automatically curated, (ie. having putative noise clusters removed). This will typically have the same name "firings.mda", and will take the same form as described above, but will typically have clusters removed.
+
+Note that curated firings can be empty if all clusters are removed for being of low quality.
 
 Other outputs
 -------------
 
-There are no other expected outputs from pipelines at this time. For example, the clips and templates must be extracted from the timeseries using the information from the firings.mda
+Intermediate files are available after processing, such as the filtered and preprocessed timeseries, metrics, and label map (if curation was used).
 
-Depending on what you are trying to extract from the timeseries based upon the firings, there may already be a processor for what you are looking for or you may have to write your own. See `processors <processors.rst>`_ for more details.
+Beyond these intermediate files, there are no other expected outputs from pipelines at this time. For example, the clips and templates must be extracted from the timeseries using the information from the firings.mda
+
+Depending on what you are trying to extract from the timeseries based upon the firings, there may already be a processor for what you are looking for or you may have to write it on your own. See :doc:`processing_pipelines` for more details.

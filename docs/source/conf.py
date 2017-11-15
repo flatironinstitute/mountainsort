@@ -31,6 +31,8 @@ import os
 extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'texext'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
