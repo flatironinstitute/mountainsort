@@ -22,7 +22,7 @@ QJsonObject get_spec()
         X.addInputs("timeseries");
         X.addOptionalInputs("geom");
         X.addOutputs("firings_out");
-        X.addOptionalParameter("adjacency_radius", "", 0);
+        X.addOptionalParameter("adjacency_radius", "Radius of local sorting neighborhood, corresponding to the geometry file. 0 means each channel is sorted independently. -1 means all channels are included in every neighborhood.", -1);
         X.addOptionalParameter("consolidate_clusters", "", "true");
         X.addOptionalParameter("consolidation_factor", "", 0.9);
         X.addOptionalParameter("clip_size", "", 50);

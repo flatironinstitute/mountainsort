@@ -448,10 +448,11 @@ QList<int> get_channels_from_geom(const Mda& geom, bigint m, double adjacency_ra
                 sumsqr += tmp * tmp;
             }
             double dist = sqrt(sumsqr);
-            if (dist <= adjacency_radius)
+            if (((adjacency_radius>0)&&(dist <= adjacency_radius))||(adjacency_radius<0))
                 ret << m2;
         }
     }
+    qDebug() << "get_channels_from_geom" << adjacency_radius << ret;
     return ret;
 }
 
