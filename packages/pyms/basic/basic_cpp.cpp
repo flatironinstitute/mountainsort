@@ -68,7 +68,20 @@ void extract_clips_(py::array_t<float> &clips_out,py::array_t<float> X, py::arra
     extract_clips(M,T,L,N,Ca.ptr,Xa.ptr,Ta.ptr,clip_size);
 }
 
+
+/*
 PYBIND11_MODULE(basic_cpp,m)
 {
     m.def("extract_clips", &extract_clips_, "", py::arg().noconvert(),py::arg(),py::arg(),py::arg());
 }
+*/
+
+PYBIND11_PLUGIN(basic_cpp) {
+    py::module m("basic_cpp");
+    m.def("extract_clips", &extract_clips_, "", py::arg().noconvert(),py::arg(),py::arg(),py::arg());
+    return m.ptr();
+}
+
+
+
+

@@ -45,9 +45,17 @@ void bandpass_filter_(py::array_t<float> &X,double samplerate,double freq_min,do
     bandpass_filter_kernel_multithread(M,N,Xa.ptr,samplerate,freq_min,freq_max,freq_wid);
 }
 
+/*
 PYBIND11_MODULE(bandpass_filter_cpp,m)
 {
     m.def("bandpass_filter", &bandpass_filter_, "", py::arg().noconvert(),py::arg(),py::arg(),py::arg(),py::arg());
+}
+*/
+
+PYBIND11_PLUGIN(bandpass_filter_cpp) {
+    py::module m("bandpass_filter_cpp");
+    m.def("bandpass_filter", &bandpass_filter_, "", py::arg().noconvert(),py::arg(),py::arg(),py::arg(),py::arg());
+    return m.ptr();
 }
 
 

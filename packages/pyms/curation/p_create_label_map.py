@@ -13,7 +13,7 @@ from mlpy import readmda, writemda64, DiskReadMda
 processor_name='pyms.create_label_map'
 processor_version='0.11'
 
-def create_label_map(*, metrics, label_map_out):
+def create_label_map(*, metrics, label_map_out, firing_rate_thresh = .05, isolation_thresh = 0.95, noise_overlap_thresh = .03, peak_snr_thresh=1.5):
     """
     Generate a label map based on the metrics file, where labels being mapped to zero are to be removed.
 
@@ -24,13 +24,16 @@ def create_label_map(*, metrics, label_map_out):
     label_map_out : OUTPUT
         Path to mda file where the second column is the present label, and the first column is the new label
         ...
+    firing_rate_thresh : float64
+        (Optional) firing rate must be above this
+    isolation_thresh : float64
+        (Optional) isolation must be above this
+    noise_overlap_thresh : float64
+        (Optional) noise_overlap_thresh must be below this
+    peak_snr_thresh : float64
+        (Optional) peak snr must be above this
     """
     #TODO: Way to pass in logic or thresholds flexibly
-
-    firing_rate_thresh = .05
-    isolation_thresh = .95
-    noise_overlap_thresh = .03
-    peak_snr_thresh = 1.5
 
     label_map = []
 
