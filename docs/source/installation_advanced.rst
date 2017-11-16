@@ -82,6 +82,26 @@ You must add mountainlab/bin to your PATH environment variable. For example appe
 
 	export PATH=[/path/to/mountainlab]/bin:$PATH
 
+Installing MLPipeline
+---------------------
+
+Do the following (after following the prerequisite installation instructions above)
+
+.. code :: bash
+
+	git clone https://github.com/flatironinstitute/mlpipeline.git
+	cd mlpipeline
+	./compile_components.sh
+
+You must add mlpipeline/bin to your PATH environment variable.
+Also add mlpipeline/utils/mlp to your PATH environment variable.
+
+.. code :: bash
+
+	# Then test to see if this opens the GUI:
+	mlpipeline
+
+The first time you run this program, some configuration instructions will appear on the window.
 
 Installing the MountainSort plugin package
 ------------------------------------------
@@ -126,25 +146,6 @@ You must add mountainview/bin to your PATH environment variable.
 	# Then test to see if this opens the GUI:
 	mountainview
 
-Installing MLPipeline
----------------------
-
-Do the following (after following the prerequisite installation instructions above)
-
-.. code :: bash
-
-	git clone https://github.com/flatironinstitute/mlpipeline.git
-	cd mlpipeline
-	./compile_components.sh
-
-You must add mlpipeline/bin to your PATH environment variable.
-
-.. code :: bash
-
-	# Then test to see if this opens the GUI:
-	mlpipeline
-
-The first time you run this program, some configuration instructions will appear on the window.
 
 Testing the installation
 ------------------------
