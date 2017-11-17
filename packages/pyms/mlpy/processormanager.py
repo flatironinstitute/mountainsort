@@ -3,6 +3,7 @@ import json
 import inspect
 from . import docscrape
 import traceback
+import numpy as np
 
 class ProcessorManager:
     _processors=[]
@@ -166,6 +167,10 @@ class ProcessorManager:
             return int(val)
         elif datatype=='double' or datatype=='float':
             return float(val)
+        elif datatype=='float64':
+            return np.float64(val)
+        elif datatype=='float32':
+            return np.float32(val)
         elif datatype=='string':
             return val
         else:
