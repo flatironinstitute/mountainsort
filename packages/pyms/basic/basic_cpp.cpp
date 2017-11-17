@@ -8,9 +8,11 @@ setup_pybind11(cfg)
 //cfg['compiler_args'] = ['-fopenmp']
 
 */
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include "ndarray.h"
+
 
 namespace py = pybind11;
 

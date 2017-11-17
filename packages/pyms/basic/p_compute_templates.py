@@ -8,9 +8,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from mlpy import writemda64,writemda32,readmda,DiskReadMda
 from common import TimeseriesChunkReader
 
-# import the C++ code
-import cppimport
-cpp=cppimport.imp('basic_cpp')
+# we no longer use cppimport
+# import cppimport
+# cpp=cppimport.imp('basic_cpp')
+
+# Do this first:
+# g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` basic_cpp.cpp -o basic_cpp`python3-config --extension-suffix` -I../mlpy
+import basic_cpp as cpp
 
 processor_name='pyms.compute_templates'
 processor_version='0.1'

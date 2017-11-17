@@ -73,9 +73,18 @@ make -j $NPROC
 EXIT_CODE=$?
 if [[ $EXIT_CODE -ne 0 ]]; then
 	echo "Problem in compilation."
+  exit 1
 else
 	make install #not strictly needed at this point
-	echo ""
-	echo "Compilation successful."
 fi
+
+set -e
+
+echo "Compiling custom C++ libraries for pyms package"
+cd packages/pyms/basic
+g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` basic_cpp.cpp -o basic_cpp`python3-config --extension-suffix` -I../mlpy
+g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` bandpass_filter_cpp.cpp bandpass_filter_kernel.cpp -o bandpass_filter_cpp`python3-config --extension-suffix` -I../mlpy -fopenmp -lfftw3
+
+echo ""
+echo "Compilation successful."
 

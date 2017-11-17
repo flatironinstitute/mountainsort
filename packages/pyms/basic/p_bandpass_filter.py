@@ -7,8 +7,13 @@ sys.path.append(parent_path)
 from mlpy import writemda32,readmda,DiskReadMda,DiskWriteMda
 from common import TimeseriesChunkReader
 
-import cppimport
-cpp=cppimport.imp('bandpass_filter_cpp')
+# we no longer use cppimport
+# import cppimport
+# cpp=cppimport.imp('bandpass_filter_cpp')
+
+# Do this first:
+# g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` bandpass_filter_cpp.cpp bandpass_filter_kernel.cpp -o bandpass_filter_cpp`python3-config --extension-suffix` -I../mlpy -fopenmp -lfftw3
+import bandpass_filter_cpp as cpp
 
 processor_name='pyms.bandpass_filter'
 processor_version='0.13'
