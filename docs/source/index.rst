@@ -5,6 +5,8 @@ MountainSort is spike sorting software developed by Jeremy Magland, Alex Barnett
 
 `Chung, Jason E.*, Jeremy F. Magland*, Alex H. Barnett, Vanessa M. Tolosa, Angela C. Tooker, Kye Y. Lee, Kedar G. Shah, Sarah H. Felix, Loren M. Frank, and Leslie F. Greengard. "A Fully Automated Approach to Spike Sorting." Neuron 95, no. 6 (2017): 1381-1394. <http://www.cell.com/neuron/fulltext/S0896-6273(17)30745-6>`_
 
+MountainSort is a plugin package to :doc:`MountainLab <mountainlab/mountainlab>` which is under development by Jeremy Magland and Witold Wysota. MountainLab is a general framework for scientific data analysis, sharing, and visualization.
+
 Getting started with MountainSort
 ---------------------------------
 
@@ -14,7 +16,7 @@ There are various ways to install and/or use MountainSort. The best choice will 
 * from the web interface (cloud computing)
 * as a standalone program
 
-Below, we will describe installation as a plugin to ML (recommended), and the remarks below will indicate how it could be used as a standalone program. MountainLab is a general framework for scientific data analysis, sharing, and visualization.
+Below, we will describe installation as a plugin to ML (recommended), and the remarks below will indicate how it could be used as a standalone program.
 
 Supported operating systems
 ---------------------------
