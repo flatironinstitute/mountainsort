@@ -43,7 +43,7 @@ Follow the directions to choose a temporary directory path. This is where Mounta
 Testing the installation
 ------------------------
 
-To test the installation, try the the examples by cloning the mountainsort_examples repository
+To test the installation, try the examples in the mountainsort_examples repository
 
 1. Clone the examples repository
 
