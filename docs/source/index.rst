@@ -49,7 +49,7 @@ To test the installation, try the the examples by cloning the mountainsort_examp
 
 .. code:: bash
 
-  clone https://github.com/flatironinstitute/mountainsort_examples
+  git clone https://github.com/flatironinstitute/mountainsort_examples
   cd mountainsort_examples/example1_mlp
 
 2. Simulate data for the test
