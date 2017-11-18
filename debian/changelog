@@ -1,0 +1,89 @@
+mountainsort (0.1ubuntu15) xenial; urgency=medium
+
+  * Removed pybind runtime dependency
+
+ -- Witold Wysota <wysota@wysota.org>  Sat, 18 Nov 2017 10:15:45 +0100
+
+mountainsort (0.1ubuntu14) xenial; urgency=medium
+
+  * python3-config --cflags --ldflags
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 23:11:16 +0100
+
+mountainsort (0.1ubuntu13) xenial; urgency=medium
+
+  * discard cppimport
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 23:03:03 +0100
+
+mountainsort (0.1ubuntu12) xenial; urgency=medium
+
+  * revert back to _MODULE instead of _PLUGIN for pyms/basic
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 19:59:38 +0100
+
+mountainsort (0.1ubuntu11) xenial; urgency=medium
+
+  * yet another fix for cppimport
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 19:43:04 +0100
+
+mountainsort (0.1ubuntu10) xenial; urgency=medium
+
+  * cppimport depends on mako
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 19:19:33 +0100
+
+mountainsort (0.1ubuntu9) xenial; urgency=medium
+
+  * fixed build rules again
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 19:09:21 +0100
+
+mountainsort (0.1ubuntu8) xenial; urgency=medium
+
+  * fixed build rules
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 19:00:15 +0100
+
+mountainsort (0.1ubuntu7) xenial; urgency=medium
+
+  * bundle cppimport in the source package
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 18:51:05 +0100
+
+mountainsort (0.1ubuntu6) xenial; urgency=medium
+
+  * bundle pybind11 in the source package
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 18:43:43 +0100
+
+mountainsort (0.1ubuntu5) xenial; urgency=medium
+
+  * pybind11 and cppimport
+
+ -- Witold Wysota <wysota@wysota.org>  Fri, 17 Nov 2017 16:56:56 +0100
+
+mountainsort (0.1ubuntu4) xenial; urgency=medium
+
+  * Fixed debuild dependencies
+
+ -- Witold Wysota <wysota@wysota.org>  Wed, 15 Nov 2017 00:00:11 +0100
+
+mountainsort (0.1ubuntu2) xenial; urgency=medium
+
+  * Created mountainsort-pyms.
+
+ -- Witold Wysota <wysota@wysota.org>  Tue, 14 Nov 2017 23:47:11 +0100
+
+mountainsort (0.1ubuntu1) xenial; urgency=medium
+
+  * Updated dependencies
+
+ -- Witold Wysota <wysota@wysota.org>  Thu, 09 Nov 2017 15:36:52 +0100
+
+mountainsort (0.1) xenial; urgency=medium
+
+  * Initial Release.
+
+ -- Witold Wysota <wysota@wysota.org>  Wed, 08 Nov 2017 23:31:51 +0100

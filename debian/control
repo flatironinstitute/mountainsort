@@ -1,0 +1,26 @@
+Source: mountainsort
+Section: science
+Priority: optional
+Maintainer: Jeremy Magland <jmagland@simonsfoundation.org>
+Build-Depends: debhelper (>= 9), qt5-qmake, qtbase5-dev, libqt5widgets5, qtdeclarative5-dev, libfftw3-dev, python3-dev, python3-pip, python3-setuptools, python3-numpy, python3-numpydoc, python3-scipy, python3-sklearn, python3-mako, libfftw3-dev
+Standards-Version: 3.9.8
+
+Package: mountainsort-ms3
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, mountainlab, libqt5core5a, fftw3
+Description: Spike sorting processing library to be used as a plugin package to MountainLab.
+
+Package: mountainsort-alg
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, mountainlab, fftw3
+Description: Spike sorting processing library to be used as a plugin package to MountainLab.
+
+Package: mountainsort-pyms
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, mountainlab, python3-numpy, python3-numpydoc, python3-scipy, python3-sklearn, python3-mako, fftw3
+Description: Python module for mountainsort.
+
+Package: mountainsort
+Architecture: all
+Depends: mountainsort-ms3, mountainsort-alg, mountainsort-pyms
+Description: Mountainsort metapackage.

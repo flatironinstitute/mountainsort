@@ -1,0 +1,10 @@
+packages/pyms/basic/*.py opt/mountainlab/packages/pyms/basic/
+packages/pyms/basic/*.cpp opt/mountainlab/packages/pyms/basic/
+packages/pyms/basic/*.h opt/mountainlab/packages/pyms/basic/
+packages/pyms/basic/*.so opt/mountainlab/packages/pyms/basic/
+packages/pyms/basic/basic.mp opt/mountainlab/packages/pyms/basic/
+packages/pyms/common/*.py opt/mountainlab/packages/pyms/common/
+packages/pyms/mlpy/*.py opt/mountainlab/packages/pyms/mlpy/
+packages/pyms/mlpy/*.h opt/mountainlab/packages/pyms/mlpy/
+packages/pyms/synthesis/*.py opt/mountainlab/packages/pyms/synthesis/
+packages/pyms/synthesis/synthesis.mp opt/mountainlab/packages/pyms/synthesis/
