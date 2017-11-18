@@ -12,7 +12,7 @@ Sorting your own data will require a few steps that will be outlined on this pag
 Preparing raw data
 ==================
 
-The first step of spike sorting using MountainSort is to prepare a raw $M\times N$ timeseries dataset in .mda format. Here M is the number of electrode channels and N is the number of timepoints. 
+The first step of spike sorting using MountainSort is to prepare a raw $M\times N$ timeseries dataset in .mda format. Here $M$ is the number of electrode channels and $N$ is the number of timepoints. Note that if your electrode array can be split into multiple independent channel subsets, then you should sort each of these subsets separately.
 
 Converting from raw binary
 --------------------------
@@ -29,6 +29,8 @@ There are also options for extracting a subset of channels (1-based indexing) or
 
 	mp-spec pyms.extract_timeseries
 
+*Could some users please contribute some examples/tutorials of how to convert their specific data into .mda format. Ultimately we'd love python processor plugins to do specific data conversions.*
+
 Using matlab
 ------------
 
@@ -44,6 +46,8 @@ If your data is in a format that can be loaded into matlab, then you can create 
 	writemda16i(X,'raw.mda');
 
 	% If you need to save as float32 type, use writemda32(X,'raw.mda') %
+
+However, this may not be suitable for very large datasets. Therefore the command-line procedure is generally preferred.
 
 Using python3/numpy
 -------------------
@@ -65,76 +69,13 @@ You will want to use the writemda functions
 
 	# If you need to save as float32 type, use writemda32(X,'raw.mda')
 
-MDA file format
-===============
+*If this is how you convert your data, please consider sharing the code, and ultimately we will create a mountainlab processor for this task.*
 
-Principles of the .mda format
------------------------------
+Here are some more specifics on the :doc:`MDA file format <mda_file_format>`
 
-The .mda file format was created as a simple method for storing multi-dimensional arrays of numbers. Of course the simplest way would be to store the array as a raw binary file, but the problem with this is that fundamental information required to read the data is missing – specifically,
-
-* the data type (e.g., float32, int16, byte, complex float, etc).
-* the number of dimensions
-* the size of the dimensions (e.g., number of rows and columns in a matrix)
-
-How should this information be included? There are many strategies, but we choose to include these in a minimal binary header.
-
-In contrast to file formats that can hold multiple data entitities, each .mda file is guaranteed to contain one and only one multi-dimensional array of byte, integer, or floating point numbers. The .mda file contains a small well-defined header containing only the minimal information required to read the array, namely the number and size of the dimensions as well as the data format of the entries. Immediately following the header, the data of the multi-dimensional array is stored in raw binary format.
-
-File format description
------------------------
-
-The .mda file format has evolved slightly over time (for example the first version only supported complex numbers), so please forgive the few arbitrary choices.
-
-The first four bytes contains a 32-bit signed integer containing a negative number representing the data format:
-
-.. code ::
-
-  -1 is complex float32
-  -2 is byte
-  -3 is float32
-  -4 is int16
-  -5 is int32
-  -6 is uint16
-  -7 is double
-  -8 is uint32
-
-The next four bytes contains a 32-bit signed integer representing the number of bytes in each entry (okay a bit redundant, I know).
-
-The next four bytes contains a 32-bit signed integer representing the number of dimensions (num_dims should be between 1 and 50).
-
-The next 4*num_dims bytes contains a list of signed 32-bit integers representing the size of each of the dimensions.
-
-That's it! Next comes the raw data.
-
-Reading and writing .mda files
-------------------------------
-
-The easiest way to read and write .mda files is by using the readmda and writemda* functions available in matlab or python, or by using the C++ classes for mda i/o.
-
-For example, in matlab you can do the following after setting up the appropriate paths:
-
-.. code :: matlab
-
-  > X=readmda('myfile.mda');
-  > writemda32(X,'newfile.mda');
-  > writemda16i(X,'newfile_16bit_integer.mda');
-
-The python functions are available by importing the mlpy library (see mountainlab/packages/pymountainsort)
-
-Examples of C++ usage are found in the mountainsortalg package: mountainlab/packages/mountainsortalg
-
-Reading the .mda file header from the command-line
---------------------------------------------------
-
-You can get information about the datatype and dimensions of a .mda file using the "mda" commandline utility as follows:
-
-.. code :: bash
-
-  > mda myfile.mda
 
 Specifying the electrode array geometry
-==========================
+=======================================
 
 The geometry of the electrode array in relation to how it is stored in the raw.mda file is done in a geom.csv file, containing the 2D or 3D locations of the electrodes. It is a comma-separated text file where each line represents an electrode channel, and the columns are the geometric coordinates. These coordinates can be in any unit so long as they correspond to the adjacency_radius sorting parameter. For complex geometries, it is encouraged to use microns. 
 
@@ -173,14 +114,14 @@ You can also specify whether to look for positive spike peaks (detect_sign=1), n
 
 
 Select the sorting pipeline
-==========================
+===========================
 
 With MountainSort, there is the mountainsort3 pipeline included, and you can also build your own pipeline :doc:`processing_pipelines`.
 
 The mountainsort3 pipeline is found in 'mountainlab/packages/mountainsort/pipelines'
 
 Sort the data
-==========================
+=============
 
 You will now call the sorting pipeline, passing it the paths to the timeseries, geometry information, and parameters files. Assuming that you are running it from the directory where all the files are, and mountainlab was installed in your home directory:
 
@@ -189,7 +130,7 @@ You will now call the sorting pipeline, passing it the paths to the timeseries, 
   mlp-run ~/mountainlab/packages/mountainsort/pipelines/mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings2.mda --_params=params.json --curate=true
 
 View the output
-==========================
+===============
 
 You can launch the sorting results in the MountainView GUI using:
 
@@ -207,7 +148,7 @@ All arguments are the paths to the relevant file
 
 
 Accessing the output
-==========================
+====================
 The main output from the sorting is the firings.mda, containing times and labels
 
 Format of the firings.mda
@@ -231,7 +172,7 @@ The fourth row (optional and not currently exported by default) contains the pea
 Further rows may be used in the future for providing reliability metrics for individual events, or quantities that identify outliers.
 
 The curated firings
--------------------------
+-------------------
 
 If a pipeline is used that contains a curation step, the firings would have been automatically curated, (ie. having putative noise clusters removed). This will typically have the same name "firings.mda", and will take the same form as described above, but will typically have clusters removed.
 

@@ -30,31 +30,50 @@ Installation
 
 The following instructions are for installing MountainSort on Ubuntu 16.04 (recommended). Installation instructions for developers (requiring compilation) can be found here :doc:`installation_advanced`. 
 
-1. Install MountainLab
-2. Install MLPipeline
-3. Install MountainView
-4. Install MountainSort
-5. Configure the directory structure. From the terminal, run:
+.. code:: bash
+
+	add-apt-repository -y ppa:magland/mountainlab
+	apt-get install mountainlab
+	apt-get install mlpipeline
+	apt-get install mountainsort
+	apt-get install mountainview
+
+Once installed, run the following to choose a temporary directory path. This is where MountainSort will store large intermediate files during processing. Put it somewhere with space.
 
 .. code:: bash
 
   mlconfig
 
-Follow the directions to choose a temporary directory path. This is where MountainSort will store large intermediate files during processing. Put it somewhere with space.
 
 Testing the installation
 ------------------------
 
-To test the installation, try the examples in the mountainsort_examples repository
+The first thing to try is
 
-1. Clone the examples repository
+.. code:: bash
+
+  mp-list-processors
+
+This will list the mountainlab processors installed on your system. For example, you should see "ms3.bandpass_filter", "ms3.whiten", and "mountainsortalg.ms3alg". These are among the core steps of the MountainSort spike sorting pipeline.
+
+Next, to get an idea for how processors work, try
+
+.. code:: bash
+
+  mp-spec ms3.bandpass_filter
+
+This will give the specification (inputs/outputs/parameters) for this particular processor.
+
+Next, try the examples in the mountainsort_examples repository
+
+**1. Clone the examples repo:**
 
 .. code:: bash
 
   git clone https://github.com/flatironinstitute/mountainsort_examples
   cd mountainsort_examples/example1_mlp
 
-2. Simulate data for the test
+**2. Simulate data for the test:**
 
 .. code:: bash
 
@@ -62,7 +81,7 @@ To test the installation, try the examples in the mountainsort_examples reposito
 
 This will generate test raw data 'raw.mda', geometry data 'geom.csv', and waveform data 'waveforms_true.mda' in the current directory
 
-3. Sort the test data
+**3. Sort the test data**
 
 You will now call the mountainsort3 sort pipeline, passing it the newly-created raw data 'raw.mda' and geometry data 'geom.csv'. You will also tell it what to call the output firings, 'firings.mda'. Finally, you will pass it parameters, already in the directory, 'params.json'.
 
@@ -70,14 +89,14 @@ You will now call the mountainsort3 sort pipeline, passing it the newly-created 
 
   mlp-run ../../pipelines/mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings.mda --_params=params.json
 
-3. View the test sorting
+**4. View the test sorting**
 
 The GUI only requires a timeseries, in this case raw data, 'raw.mda', and the firings information (times/labels), 'firings.mda'. We can also pass it the geometry information and samplerate.
 .. code:: bash
 
   mountainview --raw=raw.mda --firings=firings.mda --geom=geom.csv --samplerate=30000
 
-4. Re-sort the data with automated curation (masking of low-quality clusters and bursting-related merging)
+**5. Re-sort the data with automated curation (masking of low-quality clusters and bursting-related merging)**
 
 This time, you will add the automated curation option, '--curate=true'. This will mask out low-quality clusters and do bursting-related merging.
 
@@ -85,7 +104,7 @@ This time, you will add the automated curation option, '--curate=true'. This wil
 
   mlp-run ../../pipelines/mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings2.mda --_params=params.json --curate=true
 
-5. View the curated test sorting
+**6. View the curated test sorting**
 
 .. code:: bash
 
