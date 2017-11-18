@@ -1,7 +1,7 @@
 import os
 import json
 import inspect
-from . import docscrape
+from numpydoc import docscrape
 import traceback
 import numpy as np
 
