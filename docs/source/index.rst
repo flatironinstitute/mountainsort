@@ -43,13 +43,14 @@ Follow the directions to choose a temporary directory path. This is where Mounta
 Testing the installation
 ------------------------
 
-To test the installation, run the following commands from the terminal:
+To test the installation, try the the examples by cloning the mountainsort_examples repository
 
-1. Change directory to the example1_mlp directory (depends on where you installed mountainlab and mountainsort).
+1. Clone the examples repository
 
 .. code:: bash
 
-  cd mountainlab/packages/mountainsort/examples/example1_mlp
+  clone https://github.com/flatironinstitute/mountainsort_examples
+  cd mountainsort_examples/example1_mlp
 
 2. Simulate data for the test
 
