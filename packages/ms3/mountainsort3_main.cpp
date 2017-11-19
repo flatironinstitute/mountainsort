@@ -133,7 +133,7 @@ QJsonObject get_spec()
 
 #ifndef NO_FFTW3
     {
-        ProcessorSpec X("ms3.bandpass_filter", "0.18");
+        ProcessorSpec X("ms3.bandpass_filter", "0.19");
         X.addInputs("timeseries");
         X.addOutputs("timeseries_out");
         X.addRequiredParameters("samplerate", "freq_min", "freq_max");
