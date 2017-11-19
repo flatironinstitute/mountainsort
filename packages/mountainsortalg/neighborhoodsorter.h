@@ -23,6 +23,8 @@ private:
     NeighborhoodSorterPrivate* d;
 };
 
+void setDiskBackedMdaTemporaryDirectory(QString path);
+
 class DiskBackedMda32 {
 public:
     DiskBackedMda32();

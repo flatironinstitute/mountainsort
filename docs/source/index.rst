@@ -87,11 +87,12 @@ You will now call the mountainsort3 sort pipeline, passing it the newly-created 
 
 .. code:: bash
 
-  mlp-run ../../pipelines/mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings.mda --_params=params.json
+  mlp-run mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings.mda --_params=params.json
 
 **4. View the test sorting**
 
 The GUI only requires a timeseries, in this case raw data, 'raw.mda', and the firings information (times/labels), 'firings.mda'. We can also pass it the geometry information and samplerate.
+
 .. code:: bash
 
   mountainview --raw=raw.mda --firings=firings.mda --geom=geom.csv --samplerate=30000
@@ -102,7 +103,7 @@ This time, you will add the automated curation option, '--curate=true'. This wil
 
 .. code:: bash
 
-  mlp-run ../../pipelines/mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings2.mda --_params=params.json --curate=true
+  mlp-run mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings2.mda --_params=params.json --curate=true
 
 **6. View the curated test sorting**
 

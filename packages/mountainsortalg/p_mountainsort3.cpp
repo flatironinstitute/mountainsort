@@ -13,6 +13,7 @@
 #include "fit_stage.h"
 #include "compute_templates_0.h"
 
+#include <QFile>
 #include <cmath>
 using std::sqrt;
 
@@ -111,7 +112,16 @@ using namespace MountainSort3;
 
 bool p_mountainsort3(QString timeseries, QString geom, QString firings_out, QString temp_path, const P_mountainsort3_opts& opts)
 {
-    (void)temp_path;
+    if (temp_path.isEmpty()) {
+        qWarning() << "Temporary path is empty in p_mountainsort3";
+        return false;
+    }
+    if (!QFile::exists(temp_path)) {
+        qWarning() << "Temporary path is empty in p_mountainsort3";
+        return false;
+    }
+    setDiskBackedMdaTemporaryDirectory(temp_path);
+
     int tot_threads = omp_get_max_threads();
     omp_set_nested(1);
 
@@ -139,7 +149,7 @@ bool p_mountainsort3(QString timeseries, QString geom, QString firings_out, QStr
     QList<TimeChunkInfo> time_chunk_infos;
 
     // The amount of clips data (in the neighborhood sorters) that is permitted to stay in memory
-    bigint clips_RAM = 20e9; //how to set this?
+    bigint clips_RAM = 200e9; //how to set this?
     bigint clips_RAM_per_neighborhood = clips_RAM / M;
 
     QMap<int, NeighborhoodSorter*> neighborhood_sorters;

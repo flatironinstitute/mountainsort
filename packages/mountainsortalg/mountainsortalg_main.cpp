@@ -13,6 +13,7 @@
 #include <QJsonDocument>
 #include <clparams.h>
 #include <QDebug>
+#include <QDir>
 
 QJsonObject get_spec()
 {
@@ -90,6 +91,9 @@ int main(int argc, char* argv[])
         opts.t1 = CLP.named_parameters.value("t1").toDouble();
         opts.t2 = CLP.named_parameters.value("t2").toDouble();
         QString temp_path = CLP.named_parameters.value("_tempdir").toString();
+        if (temp_path.isEmpty()) {
+            temp_path = QDir::currentPath();
+        }
         ret = p_mountainsort3(timeseries, geom, firings_out, temp_path, opts);
 
         if (arg1 == "mountainsortalg.ms3") {

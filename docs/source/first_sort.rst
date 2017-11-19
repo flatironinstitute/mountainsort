@@ -97,7 +97,7 @@ If the adjacency_radius=0, then each channel is sorted independently.
 This file is also used by the viewer for display.
 
 Specifying the recording and sorting parameters
-==========================
+===============================================
 
 params.json contains sorting parameters that are specific to the dataset. At a minimum it should contain the sample rate in Hz. This file would appear as follows:
 
@@ -123,18 +123,18 @@ The mountainsort3 pipeline is found in 'mountainlab/packages/mountainsort/pipeli
 Sort the data
 =============
 
-You will now call the sorting pipeline, passing it the paths to the timeseries, geometry information, and parameters files. Assuming that you are running it from the directory where all the files are, and mountainlab was installed in your home directory:
+You will now call the sorting pipeline, passing it the paths to the timeseries, geometry information, and parameters files. Assuming that you are running it from the directory where all the files are (including the .mlp file), and mountainlab was installed in your home directory:
 
 .. code:: bash
 
-  mlp-run ~/mountainlab/packages/mountainsort/pipelines/mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings2.mda --_params=params.json --curate=true
+  mlp-run mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings2.mda --_params=params.json --curate=true
 
 View the output
 ===============
 
 You can launch the sorting results in the MountainView GUI using:
 
-.. code ::
+.. code:: bash
 
     mountainview --raw=raw.mda --geom=geom.csv --firings=firings.mda --samplerate=30000
 
@@ -142,7 +142,7 @@ Other arguments can be passed to mountainview, allowing for other timeseries (fi
 
 All arguments are the paths to the relevant file
 
-.. code ::
+.. code:: bash
 
     mountainview --raw=raw.mda --filt=filt.mda --pre=pre.mda --geom=geom.csv --firings=firings.mda --metrics=metrics.json
 

@@ -3,6 +3,7 @@
 #include "pca.h"
 #include "sort_clips.h"
 #include "consolidate_clusters.h"
+#include "mlutil.h"
 
 #include <QFile>
 #include <QCoreApplication>
@@ -344,13 +345,27 @@ DiskBackedMda32::DiskBackedMda32(const Mda32& X)
 DiskBackedMda32::~DiskBackedMda32()
 {
     //don't remove here -- user must call remove() explicitly
+    if (QFile::exists(m_tmp_path)) {
+        qWarning() << "Warning: Temporary file for DiskBackedMda not removed.";
+    }
+}
+
+static QString s_disk_backed_mda_temporary_directory="";
+void setDiskBackedMdaTemporaryDirectory(QString path)
+{
+    s_disk_backed_mda_temporary_directory = path;
 }
 
 void DiskBackedMda32::store(const Mda32& X)
 {
     if (m_tmp_path.isEmpty()) {
-        qWarning() << "Unable to use DiskBackedMda32 without a temporary path specified";
-        abort();
+
+        if (s_disk_backed_mda_temporary_directory.isEmpty()) {
+            qCritical() << "Unable to use DiskBackedMda32 without a temporary path specified";
+            abort();
+        }
+        m_tmp_path = s_disk_backed_mda_temporary_directory+"/.tmp.diskbackedmda."+MLUtil::makeRandomId(10)+".mda";
+
         //m_tmp_path = CacheManager::globalInstance()->makeLocalFile(MLUtil::makeRandomId() + ".DiskBackedMda32.mda");
         //CacheManager::globalInstance()->setTemporaryFileExpirePid(m_tmp_path, QCoreApplication::applicationPid());
     }
@@ -380,3 +395,5 @@ void NeighborhoodSorterPrivate::get_clip(Mda32& clip, const Mda32& X, const QLis
         }
     }
 }
+
+
