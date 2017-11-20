@@ -146,7 +146,7 @@ bool p_bandpass_filter(QString timeseries, QString timeseries_out, Bandpass_filt
 
     bigint num_threads = omp_get_max_threads();
 
-    bigint memory_size = 0.1 * 1e9;
+    bigint memory_size = 1.0 * 1e9;
     bigint chunk_size = memory_size * 1.0 / (M * 4 * num_threads);
     chunk_size = qMin(N2 * 1.0, qMax(1e4 * 1.0, chunk_size * 1.0));
     bigint overlap_size = chunk_size / 5;
@@ -159,6 +159,7 @@ bool p_bandpass_filter(QString timeseries, QString timeseries_out, Bandpass_filt
     qDebug().noquote() << "samplerate/freq_min/freq_max/freq_wid:" << opts.samplerate << opts.freq_min << opts.freq_max << opts.freq_wid;
 
     bool ret = true;
+    bigint num_timepoints_handled = 0;
 #pragma omp parallel
     {
         // one kernel runner for each parallel thread so they don't intersect
@@ -167,7 +168,6 @@ bool p_bandpass_filter(QString timeseries, QString timeseries_out, Bandpass_filt
         {
             KR.init(M, chunk_size + 2 * overlap_size, opts.samplerate, opts.freq_min, opts.freq_max, opts.freq_wid);
         }
-        bigint num_timepoints_handled = 0;
 #pragma omp for
         for (bigint timepoint = 0; timepoint < Naa; timepoint += chunk_size) {
             Mda32 chunk;
