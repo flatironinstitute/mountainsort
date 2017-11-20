@@ -30,6 +30,8 @@ Installation
 
 The following instructions are for installing MountainSort on Ubuntu 16.04 (recommended). Installation instructions for developers (requiring compilation) can be found here :doc:`installation_advanced`. 
 
+*Note: These packages have not quite been updated yet. Please wait until Nov 21st*
+
 .. code:: bash
 
 	add-apt-repository -y ppa:magland/mountainlab
