@@ -26,11 +26,11 @@ Ubuntu 16.04 is the currently supported development platform. Other Linux flavor
 If you do not have a linux machine available, we recommend setting up an `Ubuntu virtual machine. <https://help.ubuntu.com/community/VirtualMachines>`_
 
 Installation
-------------------------
+------------
 
-The following instructions are for installing MountainSort on Ubuntu 16.04 (recommended). Installation instructions for developers (requiring compilation) can be found here :doc:`installation_advanced`. 
+The following instructions are for installing MountainSort on Ubuntu 16.04 (recommended). Installation instructions requiring compilation can be :doc:`founder here <installation_advanced>`. 
 
-*Note: These packages have not quite been updated yet. Please wait until Nov 21st*
+*Note: The following packages have not quite been updated yet. Please wait until Nov 21st*
 
 .. code:: bash
 
