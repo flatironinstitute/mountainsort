@@ -1,0 +1,11 @@
+This tests installation of mountainlab via apt ppa
+
+sudo docker build -t mlcompile .
+
+xhost +
+sudo docker run -it -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 mlcompile /bin/bash
+export DISPLAY=:0
+
+Then test things like
+mlpipeline
+mountainview
