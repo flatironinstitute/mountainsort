@@ -28,7 +28,7 @@ If you do not have a linux machine available, we recommend setting up an `Ubuntu
 Installation
 ------------
 
-The following instructions are for installing MountainSort on Ubuntu 16.04 (recommended). Installation instructions requiring compilation can be :doc:`founder here <installation_advanced>`. 
+The following instructions are for installing MountainSort on Ubuntu 16.04 (recommended). Installation instructions requiring compilation can be :doc:`found here <installation_advanced>`. 
 
 *Note: The following packages have not quite been updated yet. Please wait until Nov 21st*
 
