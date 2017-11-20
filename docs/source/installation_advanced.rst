@@ -29,7 +29,7 @@ If you are on Ubuntu 16.04 or later, you can get away with using package manager
 	# Install python3, python3-pip, and packages
 	apt-get update
 	apt-get install python3 python3-pip
-	pip3 install numpy scipy pybind11 cppimport
+	pip3 install numpy scipy pybind11 cppimport numpydoc
 	# Note: you may want to use a virtualenv or other system to manage your python packages
 
 	# Install docker (optional) for using mldock

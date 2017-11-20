@@ -18,14 +18,14 @@ RUN apt-get update && apt-get install -y libqt5webkit5-dev
 RUN apt-get update && apt-get install -y nodejs npm nodejs-legacy
 
 RUN apt-get update && apt-get install -y python3 python3-pip
-RUN pip3 install numpy scipy pybind11 cppimport
+RUN pip3 install numpy scipy pybind11 cppimport numpydoc
 
 RUN apt-get update && apt-get install -y libfftw3-dev
 RUN pip3 install sklearn
 
 RUN apt-get update && apt-get install -y git
 
-RUN mkdir /work && echo "3"
+RUN mkdir /work && echo "4"
 WORKDIR /work
 RUN git clone https://github.com/flatironinstitute/mountainlab
 RUN git clone https://github.com/flatironinstitute/mlpipeline
@@ -56,12 +56,9 @@ RUN mp-list-processors
 
 #### Run example
 WORKDIR /work
-RUN git clone https://github.com/flatironinstitute/mountainsort_examples && echo "2"
+RUN git clone https://github.com/flatironinstitute/mountainsort_examples && echo "3"
 
-WORKDIR /work/mountainsort_examples/example1_mlp
+WORKDIR /work/mountainsort_examples/devel/accuracy_test_1
 
-RUN mlp-run synthesize_v1.mlp synthesize --samplerate=30000 --duration=600 --timeseries=raw.mda --geom=geom.csv --waveforms_true=waveforms_true.mda --num_channels=10 --num_units=50
-RUN mlp-run mountainsort3.mlp sort --raw=raw.mda --geom=geom.csv --firings_out=firings.mda --_params=params.json
-
-RUN mda firings.mda
+RUN ./run_test.sh
 
