@@ -10,3 +10,4 @@ Makefile
 *.pro.user
 .idea
 Makefile.*
+tmp.*
