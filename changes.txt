@@ -1,2 +1,0 @@
-allow more RAM on bandpass filter and fix the log message
-11/20/2017
