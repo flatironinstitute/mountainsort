@@ -1,8 +1,8 @@
-mountainsort (0.11.1-beta2) xenial; urgency=medium
+mountainsort (0.11.2-beta2) xenial; urgency=medium
 
-  * Prelim beta build
+  * prelim beta build
 
- -- Jeremy Magland <jmagland@simonsfoundation.org>  Tue, 21 Nov 2017 05:15:14 -0500
+ -- Jeremy Magland <jmagland@simonsfoundation.org>  Tue, 21 Nov 2017 05:37:05 -0500
 
 mountainsort (0.11.1-beta1) xenial; urgency=medium
 
