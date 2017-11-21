@@ -7,7 +7,7 @@ RUN apt-get update && echo "1"
 
 RUN apt-get update && apt-get install -y software-properties-common
 
-RUN add-apt-repository -y ppa:magland/mountainlab && echo "3"
+RUN add-apt-repository -y ppa:magland/mountainlab && echo "7"
 RUN apt-get update && apt-get install -y mountainlab
 RUN apt-get update && apt-get install -y mlpipeline
 RUN apt-get update && apt-get install -y mountainsort && echo "1"
