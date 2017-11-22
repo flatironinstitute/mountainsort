@@ -10,3 +10,5 @@ packages/pyms/synthesis/*.py opt/mountainlab/packages/pyms/synthesis/
 packages/pyms/synthesis/synthesis.mp opt/mountainlab/packages/pyms/synthesis/
 packages/pyms/validation/*.py opt/mountainlab/packages/pyms/validation/
 packages/pyms/validation/validation.mp opt/mountainlab/packages/pyms/validation/
+packages/pyms/curation/*.py opt/mountainlab/packages/pyms/curation/
+packages/pyms/curation/curation.mp opt/mountainlab/packages/pyms/curation/
