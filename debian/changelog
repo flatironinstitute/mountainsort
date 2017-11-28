@@ -1,3 +1,9 @@
+mountainsort (0.11.2-beta3) xenial; urgency=medium
+
+  * Add curation to installs
+
+ -- Jeremy Magland <jmagland@simonsfoundation.org>  Wed, 22 Nov 2017 14:09:10 -0500
+
 mountainsort (0.11.2-beta2) xenial; urgency=medium
 
   * prelim beta build
