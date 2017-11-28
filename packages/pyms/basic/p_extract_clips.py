@@ -41,7 +41,7 @@ def extract_clips(*,timeseries,firings,clips_out,clip_size=100):
     clips=extract_clips_helper(timeseries=timeseries,times=times,clip_size=clip_size)
     return writemda32(clips,clips_out)
 
-def extract_clips_helper(*,timeseries,times,clip_size=100):
+def extract_clips_helper(*,timeseries,times,clip_size=100,verbose=False):
     X=DiskReadMda(timeseries)
     M,N = X.N1(),X.N2()
     L=times.size
@@ -55,7 +55,7 @@ def extract_clips_helper(*,timeseries,times,clip_size=100):
         
         extract_clips_helper._clips[:,:,inds]=clips0
         return True
-    TCR=TimeseriesChunkReader(chunk_size_mb=100, overlap_size=clip_size*2)
+    TCR=TimeseriesChunkReader(chunk_size_mb=100, overlap_size=clip_size*2, verbose=verbose)
     if not TCR.run(timeseries,_kernel):
         return None
     return extract_clips_helper._clips

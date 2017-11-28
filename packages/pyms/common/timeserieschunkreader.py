@@ -10,7 +10,7 @@ class TimeseriesChunkInfo:
         self.size=0
 
 class TimeseriesChunkReader:
-    def __init__(self, chunk_size=0, chunk_size_mb=0, overlap_size=0, t1=-1, t2=-1):
+    def __init__(self, chunk_size=0, chunk_size_mb=0, overlap_size=0, t1=-1, t2=-1, verbose=True):
         # Note that the actual chunk size will be the maximum of chunk_size,overlap_size and chunk_size_mb*1e6/(M*4)
         self._chunk_size=chunk_size
         self._chunk_size_mb=chunk_size_mb
@@ -19,6 +19,7 @@ class TimeseriesChunkReader:
         self._t2=t2
         self._elapsed_reading=0
         self._elapsed_running=0
+        self._verbose=verbose
     def run(self, mdafile_path_or_diskreadmda, func):
         if (type(mdafile_path_or_diskreadmda)==str):
             X=DiskReadMda(mdafile_path_or_diskreadmda)
@@ -54,7 +55,8 @@ class TimeseriesChunkReader:
             self._elapsed_running+=time.time()-timer                
                 
             t=t+cs
-        print('Elapsed for TimeseriesChunkReader: %g sec reading, %g sec running' % (self._elapsed_reading,self._elapsed_running))
+        if self._verbose:
+            print('Elapsed for TimeseriesChunkReader: %g sec reading, %g sec running' % (self._elapsed_reading,self._elapsed_running))
         return True
     def elapsedReading(self):
         return self._elapsed_reading
