@@ -40,7 +40,7 @@ def extract_timeseries(*,timeseries,channels_array='',timeseries_out,
     if channels:
         _channels=np.fromstring(channels,dtype=int,sep=',')
     elif channels_array:
-        _channels=channels_array
+        _channels=readmda(channels_array)
     else:
         _channels=np.empty(0)
     
