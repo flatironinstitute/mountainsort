@@ -33,4 +33,8 @@ override_dh_install:
 	&& g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` basic_cpp.cpp -o basic_cpp`python3-config --extension-suffix` -I../mlpy `python3-config --cflags --ldflags` && g++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` bandpass_filter_cpp.cpp bandpass_filter_kernel.cpp -o bandpass_filter_cpp`python3-config --extension-suffix` -I../mlpy `python3-config --cflags --ldflags` -fopenmp -lfftw3 && cd ../../../
 #	PYTHONPATH=`pwd`/debian/python/ packages/pyms/basic/basic.mp spec > /dev/null
 	dh_install
+	sed -i -e 's#python3#/usr/bin/python3#' debian/mountainsort-pyms/opt/mountainlab/packages/pyms/basic/basic.mp
+	sed -i -e 's#python3#/usr/bin/python3#' debian/mountainsort-pyms/opt/mountainlab/packages/pyms/curation/curation.mp
+	sed -i -e 's#python3#/usr/bin/python3#' debian/mountainsort-pyms/opt/mountainlab/packages/pyms/synthesis/synthesis.mp
+	sed -i -e 's#python3#/usr/bin/python3#' debian/mountainsort-pyms/opt/mountainlab/packages/pyms/validation/validation.mp
 
