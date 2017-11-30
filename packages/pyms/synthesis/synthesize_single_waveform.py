@@ -11,7 +11,7 @@ def exp_growth(amp1,amp2,dur1,dur2):
     
 def exp_decay(amp1,amp2,dur1,dur2):
     Y=exp_growth(amp2,amp1,dur1,dur2)
-    Y=np.flip(Y,axis=0)
+    Y=np.flipud(Y) # used to be flip, but that was not supported by older versions of numpy
     return Y
     
 def smooth_it(Y,t):
