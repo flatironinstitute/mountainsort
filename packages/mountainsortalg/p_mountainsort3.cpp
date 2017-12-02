@@ -156,7 +156,16 @@ bool p_mountainsort3(QString timeseries, QString geom, QString firings_out, QStr
 
     qDebug().noquote() << QString("Starting sort: %1 channels, %2 timepoints").arg(M).arg(N);
 
-    Mda Geom(geom);
+    Mda Geom;
+    Geom.readCsv(geom); //fixed on 12/2/17
+    if (geom.isEmpty()) {
+        Geom.allocateFill(0, 2, M);
+    }
+
+    if (Geom.N2() != M) {
+        qDebug().noquote() << QString("Error: Inconsistent number of channels in geometry file: %1 <> %2").arg(Geom.N2()).arg(M);
+        return false;
+    }
 
     int num_simultaneous_neighborhoods = qMin(tot_threads, (int)M);
     int num_threads_within_neighborhoods = qMax(1, tot_threads / num_simultaneous_neighborhoods);
