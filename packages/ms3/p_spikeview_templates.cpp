@@ -39,11 +39,11 @@ struct Bandpass_filter_runner {
     void define_kernel(bigint N, double* kernel, double samplefreq, double freq_min, double freq_max, double freq_wid);
     bigint M;
     bigint N, MN;
-    fftw_complex* data_in = 0;
-    fftw_complex* data_out = 0;
+    fftwf_complex* data_in = 0;
+    fftwf_complex* data_out = 0;
     double* kernel0 = 0;
-    fftw_plan p_fft;
-    fftw_plan p_ifft;
+    fftwf_plan p_fft;
+    fftwf_plan p_ifft;
 };
 
 QVector<double> subsample(const QVector<double>& X, bigint max_elments);
@@ -212,9 +212,9 @@ Bandpass_filter_runner::Bandpass_filter_runner()
 Bandpass_filter_runner::~Bandpass_filter_runner()
 {
     if (data_in)
-        fftw_free(data_in);
+        fftwf_free(data_in);
     if (data_out)
-        fftw_free(data_out);
+        fftwf_free(data_out);
     if (kernel0)
         free(kernel0);
     //delete p_fft;
@@ -226,12 +226,12 @@ void Bandpass_filter_runner::init(bigint M_in, bigint N_in, double samplerate, d
     N = N_in;
     MN = M * N;
     /*
-    p_fft=new fftw_plan; //this nonsense is necessary because we cannot instantiate fftw plans in multiple threads simultaneously
-    p_ifft=new fftw_plan;
+    p_fft=new fftwf_plan; //this nonsense is necessary because we cannot instantiate fftw plans in multiple threads simultaneously
+    p_ifft=new fftwf_plan;
     */
 
-    data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
-    data_out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
+    data_in = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
+    data_out = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
     kernel0 = (double*)malloc(sizeof(double) * N);
 
     define_kernel(N, kernel0, samplerate, freq_min, freq_max, freq_wid);
@@ -246,8 +246,8 @@ void Bandpass_filter_runner::init(bigint M_in, bigint N_in, double samplerate, d
     bigint ostride = M;
     bigint odist = 1;
     unsigned flags = FFTW_ESTIMATE;
-    p_fft = fftw_plan_many_dft(rank, n, howmany, data_in, inembed, istride, idist, data_out, onembed, ostride, odist, FFTW_FORWARD, flags);
-    p_ifft = fftw_plan_many_dft(rank, n, howmany, data_out, inembed, istride, idist, data_in, onembed, ostride, odist, FFTW_BACKWARD, flags);
+    p_fft = fftwf_plan_many_dft(rank, n, howmany, data_in, inembed, istride, idist, data_out, onembed, ostride, odist, FFTW_FORWARD, flags);
+    p_ifft = fftwf_plan_many_dft(rank, n, howmany, data_out, inembed, istride, idist, data_in, onembed, ostride, odist, FFTW_BACKWARD, flags);
 }
 void Bandpass_filter_runner::apply(Mda32& chunk) const
 {
@@ -257,7 +257,7 @@ void Bandpass_filter_runner::apply(Mda32& chunk) const
         data_in[i][1] = 0;
     }
     //fft
-    fftw_execute(p_fft);
+    fftwf_execute(p_fft);
     //multiply by kernel
     double factor = 1.0 / N;
     bigint aa = 0;
@@ -268,7 +268,7 @@ void Bandpass_filter_runner::apply(Mda32& chunk) const
             aa++;
         }
     }
-    fftw_execute(p_ifft);
+    fftwf_execute(p_ifft);
     //set the output data
     for (bigint i = 0; i < MN; i++) {
         chunk.set(data_in[i][0], i);

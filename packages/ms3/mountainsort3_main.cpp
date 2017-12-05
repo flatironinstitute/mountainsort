@@ -143,13 +143,14 @@ QJsonObject get_spec()
 
 #ifndef NO_FFTW3
     {
-        ProcessorSpec X("ms3.bandpass_filter", "0.19");
+        ProcessorSpec X("ms3.bandpass_filter", "0.20");
         X.addInputs("timeseries");
         X.addOutputs("timeseries_out");
         X.addRequiredParameters("samplerate", "freq_min", "freq_max");
         X.addOptionalParameter("freq_wid", "", 1000);
         X.addOptionalParameter("quantization_unit", "", 0);
         X.addOptionalParameter("subsample_factor", "", 1);
+        X.can_return_requirements = true;
         processors.push_back(X.get_spec());
     }
 #endif
@@ -159,6 +160,7 @@ QJsonObject get_spec()
         X.addOutputs("timeseries_out");
         //X.addRequiredParameters();
         X.addOptionalParameter("quantization_unit", "", 0);
+        X.can_return_requirements = true;
         processors.push_back(X.get_spec());
     }
     {
@@ -379,12 +381,44 @@ int main(int argc, char* argv[])
     CLParams CLP(argc, argv);
 
     QString arg1 = CLP.unnamed_parameters.value(0);
+    QString arg2 = CLP.unnamed_parameters.value(1);
 
+    QString pname;
+    bool requirements_only = false;
     if (arg1 == "spec") {
         QJsonObject spec = get_spec();
-        QString json = QJsonDocument(spec).toJson(QJsonDocument::Indented);
-        printf("%s\n", json.toUtf8().data());
-        return 0;
+        if (arg2.isEmpty()) {
+            QString json = QJsonDocument(spec).toJson(QJsonDocument::Indented);
+            printf("%s\n", json.toUtf8().data());
+            return 0;
+        }
+        else {
+            pname = arg2;
+            QJsonArray P = spec["processors"].toArray();
+            bool found=false;
+            QJsonObject spec0;
+            for (int i=0; i < P.count(); i++) {
+                QJsonObject spec1 = P[i].toObject();
+                if (spec1["name"] == pname) {
+                    spec0 = spec1;
+                    found=true;
+                }
+            }
+            if (!found) {
+                printf("{}\n");
+                return -1;
+            }
+            QString json = QJsonDocument(spec0).toJson(QJsonDocument::Indented);
+            printf("%s\n", json.toUtf8().data());
+            return 0;
+        }
+    }
+    else if (arg1 == "requirements") {
+        pname = arg2;
+        requirements_only = true;
+    }
+    else {
+        pname = arg1;
     }
 
     bool ret = false;
@@ -397,13 +431,13 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (arg1 == "ms3.run_metrics_script") {
+    if (pname == "ms3.run_metrics_script") {
         QString metrics = CLP.named_parameters["metrics"].toString();
         QString script = CLP.named_parameters["script"].toString();
         QString metrics_out = CLP.named_parameters["metrics_out"].toString();
         ret = p_run_metrics_script(metrics, script, metrics_out);
     }
-    else if (arg1 == "spikeview.metrics1") {
+    else if (pname == "spikeview.metrics1") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString metrics_out = CLP.named_parameters["metrics_out"].toString();
         P_spikeview_metrics1_opts opts;
@@ -411,7 +445,7 @@ int main(int argc, char* argv[])
         ret = p_spikeview_metrics1(firings, metrics_out, opts);
     }
 #ifndef NO_FFTW3
-    else if (arg1 == "spikeview.templates") {
+    else if (pname == "spikeview.templates") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString firings = CLP.named_parameters["firings"].toString();
         QString templates_out = CLP.named_parameters["templates_out"].toString();
@@ -427,7 +461,7 @@ int main(int argc, char* argv[])
         ret = p_spikeview_templates(timeseries, firings, templates_out, opts);
     }
 #endif
-    else if (arg1 == "banjoview.cross_correlograms") {
+    else if (pname == "banjoview.cross_correlograms") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString correlograms_out = CLP.named_parameters["correlograms_out"].toString();
         P_banjoview_cross_correlograms_opts opts;
@@ -446,7 +480,7 @@ int main(int argc, char* argv[])
         ret = p_banjoview_cross_correlograms(firings, correlograms_out, opts);
     }
     /*
-    else if (arg1 == "ms3.synthesize_timeseries") {
+    else if (pname == "ms3.synthesize_timeseries") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString waveforms = CLP.named_parameters["waveforms"].toString();
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
@@ -457,7 +491,7 @@ int main(int argc, char* argv[])
         ret = p_synthesize_timeseries(firings, waveforms, timeseries_out, opts);
     }
     */
-    else if (arg1 == "ms3.combine_firing_segments") {
+    else if (pname == "ms3.combine_firing_segments") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QStringList firings_list = MLUtil::toStringList(CLP.named_parameters["firings_list"]);
         QString firings_out = CLP.named_parameters["firings_out"].toString();
@@ -470,7 +504,7 @@ int main(int argc, char* argv[])
             opts.offset_search_radius = CLP.named_parameters["offset_search_radius"].toDouble();
         ret = p_combine_firing_segments(timeseries, firings_list, firings_out, opts);
     }
-    else if (arg1 == "ms3.extract_firings") {
+    else if (pname == "ms3.extract_firings") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString metrics = CLP.named_parameters["metrics"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
@@ -492,12 +526,12 @@ int main(int argc, char* argv[])
         }
         ret = p_extract_firings(firings, metrics, firings_out, opts);
     }
-    else if (arg1 == "ms3.concat_timeseries") {
+    else if (pname == "ms3.concat_timeseries") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
         ret = p_concat_timeseries(timeseries_list, timeseries_out);
     }
-    else if (arg1 == "ms3.create_multiscale_timeseries") {
+    else if (pname == "ms3.create_multiscale_timeseries") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
         QString tempdir = CLP.named_parameters["_tempdir"].toString();
@@ -508,7 +542,7 @@ int main(int argc, char* argv[])
         ret = p_create_multiscale_timeseries(timeseries,timeseries_out,tempdir);
     }
 #ifndef NO_FFTW3
-    else if (arg1 == "ms3.bandpass_filter") {
+    else if (pname == "ms3.bandpass_filter") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
         Bandpass_filter_opts opts;
@@ -518,17 +552,42 @@ int main(int argc, char* argv[])
         opts.freq_wid = CLP.named_parameters.value("freq_wid", 1000).toDouble();
         opts.quantization_unit = CLP.named_parameters.value("quantization_unit").toDouble();
         opts.subsample_factor = CLP.named_parameters.value("subsample_factor", 1).toInt();
+        if (requirements_only) opts.requirements_only = true;
         ret = p_bandpass_filter(timeseries, timeseries_out, opts);
+        if (requirements_only) {
+            if (ret) {
+                QJsonObject requirements0;
+                requirements0["peak_ram_mb"] = opts.expected_peak_ram_mb;
+                QString json = QJsonDocument(requirements0).toJson(QJsonDocument::Indented);
+                printf("%s\n", json.toUtf8().data());
+            }
+            else {
+                printf("Error in processor while trying to retrieve requirements.\n");
+            }
+        }
     }
 #endif
-    else if (arg1 == "ms3.whiten") {
+    else if (pname == "ms3.whiten") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
         Whiten_opts opts;
         opts.quantization_unit = CLP.named_parameters["quantization_unit"].toDouble();
+        if (requirements_only)
+            opts.requirements_only = true;
         ret = p_whiten(timeseries, timeseries_out, opts);
+        if (requirements_only) {
+            if (ret) {
+                QJsonObject requirements0;
+                requirements0["peak_ram_mb"] = opts.expected_peak_ram_mb;
+                QString json = QJsonDocument(requirements0).toJson(QJsonDocument::Indented);
+                printf("%s\n", json.toUtf8().data());
+            }
+            else {
+                printf("Error in processor while trying to retrieve requirements.\n");
+            }
+        }
     }
-    else if (arg1 == "ms3.compute_whitening_matrix") {
+    else if (pname == "ms3.compute_whitening_matrix") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
         QString whitening_matrix_out = CLP.named_parameters["whitening_matrix_out"].toString();
         QStringList channels_str = CLP.named_parameters["channels"].toString().split(",", QString::SkipEmptyParts);
@@ -536,7 +595,7 @@ int main(int argc, char* argv[])
         Whiten_opts opts;
         ret = p_compute_whitening_matrix(timeseries_list, channels, whitening_matrix_out, opts);
     }
-    else if (arg1 == "ms3.whiten_clips") {
+    else if (pname == "ms3.whiten_clips") {
         QString clips = CLP.named_parameters["clips"].toString();
         QString whitening_matrix = CLP.named_parameters["whitening_matrix"].toString();
         QString clips_out = CLP.named_parameters["clips_out"].toString();
@@ -544,7 +603,7 @@ int main(int argc, char* argv[])
         opts.quantization_unit = CLP.named_parameters["quantization_unit"].toDouble();
         ret = p_whiten_clips(clips, whitening_matrix, clips_out, opts);
     }
-    else if (arg1 == "ms3.apply_whitening_matrix") {
+    else if (pname == "ms3.apply_whitening_matrix") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString whitening_matrix = CLP.named_parameters["whitening_matrix"].toString();
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
@@ -552,7 +611,7 @@ int main(int argc, char* argv[])
         opts.quantization_unit = CLP.named_parameters["quantization_unit"].toDouble();
         ret = p_apply_whitening_matrix(timeseries, whitening_matrix, timeseries_out, opts);
     }
-    else if (arg1 == "ms3.extract_clips") {
+    else if (pname == "ms3.extract_clips") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
         QString event_times = CLP.named_parameters["event_times"].toString();
         QString clips_out = CLP.named_parameters["clips_out"].toString();
@@ -560,7 +619,7 @@ int main(int argc, char* argv[])
         QList<int> channels = MLUtil::stringListToIntList(channels_str);
         ret = p_extract_clips(timeseries_list, event_times, channels, clips_out, CLP.named_parameters);
     }
-    else if (arg1 == "ms3.mv_extract_clips") {
+    else if (pname == "ms3.mv_extract_clips") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
         QString firings = CLP.named_parameters["firings"].toString();
         QString clips_out = CLP.named_parameters["clips_out"].toString();
@@ -568,7 +627,7 @@ int main(int argc, char* argv[])
         QList<int> channels = MLUtil::stringListToIntList(channels_str);
         ret = p_mv_extract_clips(timeseries_list, firings, channels, clips_out, CLP.named_parameters);
     }
-    else if (arg1 == "ms3.mv_extract_clips_features") {
+    else if (pname == "ms3.mv_extract_clips_features") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString firings = CLP.named_parameters["firings"].toString();
         QString features_out = CLP.named_parameters["features_out"].toString();
@@ -577,7 +636,7 @@ int main(int argc, char* argv[])
         int subtract_mean = CLP.named_parameters["subtract_mean"].toInt();
         ret = p_mv_extract_clips_features(timeseries, firings, features_out, clip_size, num_features, subtract_mean);
     }
-    else if (arg1 == "ms3.compute_templates") {
+    else if (pname == "ms3.compute_templates") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
         QString firings = CLP.named_parameters["firings"].toString();
         QString templates_out = CLP.named_parameters["templates_out"].toString();
@@ -585,13 +644,13 @@ int main(int argc, char* argv[])
         QList<int> clusters = MLUtil::stringListToIntList(CLP.named_parameters["clusters"].toString().split(",", QString::SkipEmptyParts));
         ret = p_compute_templates(timeseries_list, firings, templates_out, clip_size, clusters);
     }
-    else if (arg1 == "ms3.reorder_labels") {
+    else if (pname == "ms3.reorder_labels") {
         QString templates = CLP.named_parameters["templates"].toString();
         QString firings = CLP.named_parameters["firings"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
         ret = p_reorder_labels(templates, firings, firings_out);
     }
-    else if (arg1 == "ms3.create_firings") {
+    else if (pname == "ms3.create_firings") {
         QString event_times = CLP.named_parameters["event_times"].toString();
         QString labels = CLP.named_parameters["labels"].toString();
         QString amplitudes = CLP.named_parameters["amplitudes"].toString();
@@ -599,20 +658,20 @@ int main(int argc, char* argv[])
         int central_channel = CLP.named_parameters["central_channel"].toInt();
         ret = p_create_firings(event_times, labels, amplitudes, firings_out, central_channel);
     }
-    else if (arg1 == "ms3.combine_firings") {
+    else if (pname == "ms3.combine_firings") {
         QStringList firings_list = MLUtil::toStringList(CLP.named_parameters["firings_list"]);
         QString firings_out = CLP.named_parameters["firings_out"].toString();
         QString tmp = CLP.named_parameters.value("increment_labels", "").toString();
         bool increment_labels = (tmp == "true");
         ret = p_combine_firings(firings_list, firings_out, increment_labels);
     }
-    else if (arg1 == "ms3.apply_timestamp_offset") {
+    else if (pname == "ms3.apply_timestamp_offset") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
         double timestamp_offset = CLP.named_parameters["timestamp_offset"].toDouble();
         ret = p_apply_timestamp_offset(firings, firings_out, timestamp_offset);
     }
-    else if (arg1 == "ms3.link_segments") {
+    else if (pname == "ms3.link_segments") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString firings_prev = CLP.named_parameters["firings_prev"].toString();
         QString Kmax_prev = CLP.named_parameters["Kmax_prev"].toString();
@@ -627,7 +686,7 @@ int main(int argc, char* argv[])
         double t2_prev = CLP.named_parameters["t2_prev"].toDouble();
         ret = p_link_segments(firings, firings_prev, Kmax_prev, firings_out, firings_subset_out, Kmax_out, t1, t2, t1_prev, t2_prev);
     }
-    else if (arg1 == "ms3.cluster_metrics") {
+    else if (pname == "ms3.cluster_metrics") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString firings = CLP.named_parameters["firings"].toString();
         QString cluster_metrics_out = CLP.named_parameters["cluster_metrics_out"].toString();
@@ -635,7 +694,7 @@ int main(int argc, char* argv[])
         opts.samplerate = CLP.named_parameters["samplerate"].toDouble();
         ret = p_cluster_metrics(timeseries, firings, cluster_metrics_out, opts);
     }
-    else if (arg1 == "ms3.isolation_metrics") {
+    else if (pname == "ms3.isolation_metrics") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries"]);
         QString firings = CLP.named_parameters["firings"].toString();
         QString metrics_out = CLP.named_parameters["metrics_out"].toString();
@@ -644,18 +703,18 @@ int main(int argc, char* argv[])
         opts.compute_bursting_parents = (CLP.named_parameters["compute_bursting_parents"].toString() == "true");
         ret = p_isolation_metrics(timeseries_list, firings, metrics_out, pair_metrics_out, opts);
     }
-    else if (arg1 == "ms3.combine_cluster_metrics") {
+    else if (pname == "ms3.combine_cluster_metrics") {
         QStringList metrics_list = MLUtil::toStringList(CLP.named_parameters["metrics_list"]);
         QString metrics_out = CLP.named_parameters["metrics_out"].toString();
         ret = p_combine_cluster_metrics(metrics_list, metrics_out);
     }
-    else if (arg1 == "ms3.split_firings") {
+    else if (pname == "ms3.split_firings") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
         QString firings = CLP.named_parameters["firings"].toString();
         QStringList firings_out_list = MLUtil::toStringList(CLP.named_parameters["firings_out_list"]);
         ret = p_split_firings(timeseries_list, firings, firings_out_list);
     }
-    else if (arg1 == "ms3.mv_discrimhist") {
+    else if (pname == "ms3.mv_discrimhist") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString firings = CLP.named_parameters["firings"].toString();
         QString output = CLP.named_parameters["output"].toString();
@@ -667,7 +726,7 @@ int main(int argc, char* argv[])
         ret = mv_discrimhist(timeseries, firings, output, opts);
     }
     /*
-    else if (arg1 == "ms3.extract_firings") {
+    else if (pname == "ms3.extract_firings") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
         QStringList clusters_str = MLUtil::toStringList(CLP.named_parameters["clusters"]);
@@ -675,19 +734,19 @@ int main(int argc, char* argv[])
         ret = p_extract_firings(firings, clusters, firings_out);
     }
     */
-    else if (arg1 == "ms3.concat_firings") {
+    else if (pname == "ms3.concat_firings") {
         QStringList timeseries_list = MLUtil::toStringList(CLP.named_parameters["timeseries_list"]);
         QStringList firings_list = MLUtil::toStringList(CLP.named_parameters["firings_list"]);
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
         ret = p_concat_firings(timeseries_list, firings_list, timeseries_out, firings_out);
     }
-    else if (arg1 == "ms3.concat_event_times") {
+    else if (pname == "ms3.concat_event_times") {
         QStringList event_times_list = MLUtil::toStringList(CLP.named_parameters["event_times_list"]);
         QString event_times_out = CLP.named_parameters["event_times_out"].toString();
         ret = p_concat_event_times(event_times_list, event_times_out);
     }
-    else if (arg1 == "ms3.load_test") {
+    else if (pname == "ms3.load_test") {
         QString stats_out = CLP.named_parameters["stats_out"].toString();
         P_load_test_opts opts;
         opts.num_cpu_ops = CLP.named_parameters["num_cpu_ops"].toDouble();
@@ -695,7 +754,7 @@ int main(int argc, char* argv[])
         opts.num_write_bytes = CLP.named_parameters["num_write_bytes"].toDouble();
         ret = p_load_test(stats_out, opts);
     }
-    else if (arg1 == "ms3.compute_amplitudes") {
+    else if (pname == "ms3.compute_amplitudes") {
         P_compute_amplitudes_opts opts;
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString event_times = CLP.named_parameters["event_times"].toString();
@@ -703,7 +762,7 @@ int main(int argc, char* argv[])
         QString amplitudes_out = CLP.named_parameters["amplitudes_out"].toString();
         ret = p_compute_amplitudes(timeseries, event_times, amplitudes_out, opts);
     }
-    else if (arg1 == "ms3.confusion_matrix") {
+    else if (pname == "ms3.confusion_matrix") {
         P_confusion_matrix_opts opts;
         QString firings1 = CLP.named_parameters["firings1"].toString();
         QString firings2 = CLP.named_parameters["firings2"].toString();
@@ -718,14 +777,14 @@ int main(int argc, char* argv[])
         opts.relabel_firings2 = (CLP.named_parameters.value("relabel_firings2", "false").toString() == "true");
         ret = p_confusion_matrix(firings1, firings2, confusion_matrix_out, matched_firings_out, label_map_out, firings2_relabeled_out, firings2_relabel_map_out, opts);
     }
-    else if (arg1 == "ms3.mask_out_artifacts") {
+    else if (pname == "ms3.mask_out_artifacts") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString timeseries_out = CLP.named_parameters["timeseries_out"].toString();
         double threshold = CLP.named_parameters["threshold"].toDouble();
         bigint interval_size = CLP.named_parameters["interval_size"].toDouble();
         ret = p_mask_out_artifacts(timeseries,timeseries_out,threshold,interval_size);
     }
-    else if (arg1 == "ms3.mv_compute_templates") {
+    else if (pname == "ms3.mv_compute_templates") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString firings = CLP.named_parameters["firings"].toString();
         QString templates_out = CLP.named_parameters["templates_out"].toString();
@@ -733,7 +792,7 @@ int main(int argc, char* argv[])
         int clip_size = CLP.named_parameters["clip_size"].toInt();
         ret = mv_compute_templates(timeseries,firings,templates_out,stdevs_out,clip_size);
     }
-    else if (arg1 == "ms3.mv_subfirings") {
+    else if (pname == "ms3.mv_subfirings") {
         QString firings = CLP.named_parameters["firings"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
         QStringList labels_str = MLUtil::toStringList(CLP.named_parameters["labels"]);
@@ -741,7 +800,7 @@ int main(int argc, char* argv[])
         bigint max_per_label = CLP.named_parameters["max_per_label"].toDouble();
         ret = mv_subfirings(firings,firings_out,labels.toVector(),max_per_label);
     }
-    else if (arg1 == "ms3.mv_compute_amplitudes") {
+    else if (pname == "ms3.mv_compute_amplitudes") {
         QString timeseries = CLP.named_parameters["timeseries"].toString();
         QString firings = CLP.named_parameters["firings"].toString();
         QString firings_out = CLP.named_parameters["firings_out"].toString();
@@ -749,7 +808,7 @@ int main(int argc, char* argv[])
         ret = p_mv_compute_amplitudes(timeseries, firings, firings_out, opts);
     }
     else {
-        qWarning() << "Unexpected processor name: " + arg1;
+        qWarning() << "Unexpected processor name: " + pname;
         return -1;
     }
 
@@ -916,5 +975,7 @@ QJsonObject ProcessorSpec::get_spec()
     }
     ret["parameters"] = parameters0;
     ret["exe_command"] = qApp->applicationFilePath() + " " + processor_name + " $(arguments)";
+    if (this->can_return_requirements)
+        ret["requirements_command"] = qApp->applicationFilePath() + " requirements " + processor_name + " $(arguments)";
     return ret;
 }

@@ -38,8 +38,8 @@ struct Kernel_runner {
 
     ~Kernel_runner()
     {
-        fftw_free(data_in);
-        fftw_free(data_out);
+        fftwf_free(data_in);
+        fftwf_free(data_out);
         free(kernel0);
         //delete p_fft;
         //delete p_ifft;
@@ -51,12 +51,12 @@ struct Kernel_runner {
         MN = M * N;
 
         /*
-        p_fft=new fftw_plan; //this nonsense is necessary because we cannot instantiate fftw plans in multiple threads simultaneously
-        p_ifft=new fftw_plan;
+        p_fft=new fftwf_plan; //this nonsense is necessary because we cannot instantiate fftw plans in multiple threads simultaneously
+        p_ifft=new fftwf_plan;
         */
 
-        data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
-        data_out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
+        data_in = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
+        data_out = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
         kernel0 = (double*)malloc(sizeof(double) * N);
 
         define_kernel(N, kernel0, samplerate, freq_min, freq_max, freq_wid);
@@ -71,8 +71,8 @@ struct Kernel_runner {
         bigint ostride = M;
         bigint odist = 1;
         unsigned flags = FFTW_ESTIMATE;
-        p_fft = fftw_plan_many_dft(rank, n, howmany, data_in, inembed, istride, idist, data_out, onembed, ostride, odist, FFTW_FORWARD, flags);
-        p_ifft = fftw_plan_many_dft(rank, n, howmany, data_out, inembed, istride, idist, data_in, onembed, ostride, odist, FFTW_BACKWARD, flags);
+        p_fft = fftwf_plan_many_dft(rank, n, howmany, data_in, inembed, istride, idist, data_out, onembed, ostride, odist, FFTW_FORWARD, flags);
+        p_ifft = fftwf_plan_many_dft(rank, n, howmany, data_out, inembed, istride, idist, data_in, onembed, ostride, odist, FFTW_BACKWARD, flags);
     }
     void apply(Mda32& chunk)
     {
@@ -82,7 +82,7 @@ struct Kernel_runner {
             data_in[i][1] = 0;
         }
         //fft
-        fftw_execute(p_fft);
+        fftwf_execute(p_fft);
         //multiply by kernel
         double factor = 1.0 / N;
         bigint aa = 0;
@@ -93,7 +93,7 @@ struct Kernel_runner {
                 aa++;
             }
         }
-        fftw_execute(p_ifft);
+        fftwf_execute(p_ifft);
         //set the output data
         for (bigint i = 0; i < MN; i++) {
             chunk.set(data_in[i][0], i);
@@ -102,17 +102,17 @@ struct Kernel_runner {
 
     bigint M;
     bigint N, MN;
-    fftw_complex* data_in;
-    fftw_complex* data_out;
+    fftwf_complex* data_in;
+    fftwf_complex* data_out;
     double* kernel0;
-    fftw_plan p_fft;
-    fftw_plan p_ifft;
+    fftwf_plan p_fft;
+    fftwf_plan p_ifft;
 };
 Mda32 bandpass_filter_kernel(Mda32& X, double samplerate, double freq_min, double freq_max, double freq_wid);
 Mda32 subsample(const Mda32& timeseries, int subsample_factor);
 }
 
-bool p_bandpass_filter(QString timeseries, QString timeseries_out, Bandpass_filter_opts opts)
+bool p_bandpass_filter(QString timeseries, QString timeseries_out, Bandpass_filter_opts &opts)
 {
     if (opts.freq_max == 0) {
         return QFile::copy(timeseries, timeseries_out);
@@ -146,16 +146,23 @@ bool p_bandpass_filter(QString timeseries, QString timeseries_out, Bandpass_filt
 
     bigint num_threads = omp_get_max_threads();
 
-    bigint memory_size = 1.0 * 1e9;
-    bigint chunk_size = memory_size * 1.0 / (M * 4 * num_threads);
-    chunk_size = qMin(N2 * 1.0, qMax(1e4 * 1.0, chunk_size * 1.0));
-    bigint overlap_size = chunk_size / 5;
-    if (overlap_size < 20000)
-        overlap_size=20000;
+    int overhead = 6; // complex in, complex out, chunk, chunk2, extra
+    bigint overlap_size = 60000;
+    bigint min_chunk_size = overlap_size*2;
+    double target_ram_bytes = 1.0 * (1024*1024*1024);
+    double target_chunk_size = target_ram_bytes / (overhead * sizeof(float) * M * num_threads) - 2 * overlap_size;
+    bigint chunk_size = (bigint)(target_chunk_size);
+    if (chunk_size < min_chunk_size) chunk_size = min_chunk_size;
 
-    //bigint chunk_size = 20000;
-    //bigint overlap_size = 2000;
+    double expected_ram_bytes = overhead * sizeof(float)*M*num_threads*(chunk_size+2*overlap_size);
+    opts.expected_peak_ram_mb = expected_ram_bytes / (1024 * 1024);
+
+    if (opts.requirements_only) {
+        return true;
+    }
+
     printf("************+++ Using chunk size / overlap size: %ld / %ld (num threads=%ld)\n", chunk_size, overlap_size, num_threads);
+    qDebug().noquote() << "Expected peak RAM usage (MB):" << opts.expected_peak_ram_mb;
     qDebug().noquote() << "samplerate/freq_min/freq_max/freq_wid:" << opts.samplerate << opts.freq_min << opts.freq_max << opts.freq_wid;
 
     bool ret = true;
@@ -244,15 +251,15 @@ bool do_fft_1d_r2c(bigint M, bigint N, float* out, float* in)
 {
     /*
     if (num_threads>1) {
-        fftw_init_threads();
-        fftw_plan_with_nthreads(num_threads);
+        fftwf_init_threads();
+        fftwf_plan_with_nthreads(num_threads);
     }
     */
 
     bigint MN = M * N;
 
-    fftw_complex* in2 = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
-    fftw_complex* out2 = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
+    fftwf_complex* in2 = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
+    fftwf_complex* out2 = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
     for (bigint ii = 0; ii < MN; ii++) {
         //in2[ii][0]=in[ii*2];
         //in2[ii][1]=in[ii*2+1];
@@ -269,7 +276,7 @@ bool do_fft_1d_r2c(bigint M, bigint N, float* out, float* in)
      * and its output is at location out+k*odist.
      * Plans obtained in this way can often be faster
      * than calling FFTW multiple times for the individual
-     * transforms. The basic fftw_plan_dft interface corresponds
+     * transforms. The basic fftwf_plan_dft interface corresponds
      * to howmany=1 (in which case the dist parameters are ignored).
      *
      * Each of the howmany transforms has rank rank
@@ -290,10 +297,10 @@ bool do_fft_1d_r2c(bigint M, bigint N, float* out, float* in)
      * j is the ordinary row-major index.) When combined with
      * the k-th transform in a howmany loop, from above, this
      * means that the (j,k)-th element is at j*stride+k*dist.
-     * (The basic fftw_plan_dft interface corresponds to a stride
+     * (The basic fftwf_plan_dft interface corresponds to a stride
      * of 1.)
      */
-    fftw_plan p;
+    fftwf_plan p;
     bigint rank = 1;
     int n[] = { (int)N };
     bigint howmany = M;
@@ -306,25 +313,25 @@ bool do_fft_1d_r2c(bigint M, bigint N, float* out, float* in)
     bigint sign = FFTW_FORWARD;
     unsigned flags = FFTW_ESTIMATE;
 #pragma omp critical
-    p = fftw_plan_many_dft(rank, n, howmany, in2, inembed, istride, idist, out2, onembed, ostride, odist, sign, flags);
-    //p=fftw_plan_dft_1d(N,in2,out2,FFTW_FORWARD,FFTW_ESTIMATE);
+    p = fftwf_plan_many_dft(rank, n, howmany, in2, inembed, istride, idist, out2, onembed, ostride, odist, sign, flags);
+    //p=fftwf_plan_dft_1d(N,in2,out2,fftwf_FORWARD,fftwf_ESTIMATE);
 
-    fftw_execute(p);
+    fftwf_execute(p);
     for (bigint ii = 0; ii < MN; ii++) {
         out[ii * 2] = out2[ii][0];
         out[ii * 2 + 1] = out2[ii][1];
     }
-    fftw_free(in2);
-    fftw_free(out2);
+    fftwf_free(in2);
+    fftwf_free(out2);
 
 /*
     if (num_threads>1) {
-        fftw_cleanup_threads();
+        fftwf_cleanup_threads();
     }
     */
 
 #pragma omp critical
-    fftw_destroy_plan(p);
+    fftwf_destroy_plan(p);
 
     return true;
 }
@@ -333,21 +340,21 @@ bool do_ifft_1d_c2r(bigint M, bigint N, float* out, float* in)
 {
     /*
     if (num_threads>1) {
-        fftw_init_threads();
-        fftw_plan_with_nthreads(num_threads);
+        fftwf_init_threads();
+        fftwf_plan_with_nthreads(num_threads);
     }
     */
 
     bigint MN = M * N;
 
-    fftw_complex* in2 = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
-    fftw_complex* out2 = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MN);
+    fftwf_complex* in2 = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
+    fftwf_complex* out2 = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * MN);
     for (bigint ii = 0; ii < MN; ii++) {
         in2[ii][0] = in[ii * 2];
         in2[ii][1] = in[ii * 2 + 1];
     }
 
-    fftw_plan p;
+    fftwf_plan p;
     bigint rank = 1;
     int n[] = { (int)N };
     bigint howmany = M;
@@ -360,24 +367,24 @@ bool do_ifft_1d_c2r(bigint M, bigint N, float* out, float* in)
     bigint sign = FFTW_BACKWARD;
     unsigned flags = FFTW_ESTIMATE;
 #pragma omp critical
-    p = fftw_plan_many_dft(rank, n, howmany, in2, inembed, istride, idist, out2, onembed, ostride, odist, sign, flags);
-    //p=fftw_plan_dft_1d(N,in2,out2,FFTW_BACKWARD,FFTW_ESTIMATE);
+    p = fftwf_plan_many_dft(rank, n, howmany, in2, inembed, istride, idist, out2, onembed, ostride, odist, sign, flags);
+    //p=fftwf_plan_dft_1d(N,in2,out2,fftwf_BACKWARD,fftwf_ESTIMATE);
 
-    fftw_execute(p);
+    fftwf_execute(p);
     for (bigint ii = 0; ii < MN; ii++) {
         out[ii] = out2[ii][0];
     }
-    fftw_free(in2);
-    fftw_free(out2);
+    fftwf_free(in2);
+    fftwf_free(out2);
 
 /*
     if (num_threads>1) {
-        fftw_cleanup_threads();
+        fftwf_cleanup_threads();
     }
     */
 
 #pragma omp critical
-    fftw_destroy_plan(p);
+    fftwf_destroy_plan(p);
 
     return true;
 }

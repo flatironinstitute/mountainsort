@@ -42,7 +42,7 @@ void quantize(bigint N, float* X, double unit)
 Mda32 extract_channels_from_chunk(const Mda32& X, const QList<int>& channels);
 }
 
-bool p_whiten(QString timeseries, QString timeseries_out, Whiten_opts opts)
+bool p_whiten(QString timeseries, QString timeseries_out, Whiten_opts &opts)
 {
     (void)opts;
 
@@ -51,6 +51,15 @@ bool p_whiten(QString timeseries, QString timeseries_out, Whiten_opts opts)
     bigint N = X.N2();
 
     bigint processing_chunk_size = 1e5; //changed from 1e7 to 1e5 by jfm (do ensure we are using all threads for short datasets with large numbers of channels)
+
+    int overhead = 3; //maybe this should be 2
+    double expected_peak_ram_bytes = overhead * processing_chunk_size * M * sizeof(float);
+    opts.expected_peak_ram_mb = expected_peak_ram_bytes / (1024 * 1024);
+
+    if (opts.requirements_only)
+        return true;
+
+    qDebug().noquote() << "Expected peak RAM (MB):" << opts.expected_peak_ram_mb;
 
     Mda XXt(M, M);
     double* XXtptr = XXt.dataPtr();

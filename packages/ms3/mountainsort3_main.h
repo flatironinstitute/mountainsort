@@ -51,6 +51,7 @@ struct ProcessorSpec {
     QList<ProcessorSpecFile> inputs;
     QList<ProcessorSpecFile> outputs;
     QList<ProcessorSpecParam> parameters;
+    bool can_return_requirements = false;
 
     void addInputs(QString name1, QString name2 = "", QString name3 = "", QString name4 = "", QString name5 = "");
     void addOptionalInputs(QString name1, QString name2 = "", QString name3 = "", QString name4 = "", QString name5 = "");

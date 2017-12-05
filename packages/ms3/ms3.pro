@@ -19,7 +19,7 @@ CONFIG("no_fftw3") {
     warning(Not using FFTW3)
 }
 else {
-    LIBS += -lfftw3 -lfftw3_threads
+    LIBS += -lfftw3f -lfftw3f_threads
     SOURCES += p_spikeview_templates.cpp
     HEADERS += p_spikeview_templates.h
 }
