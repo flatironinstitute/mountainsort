@@ -21,7 +21,7 @@
 struct Whiten_opts {
     double quantization_unit = 0;
 
-    bool requirements_only;
+    bool requirements_only = false;
     double expected_peak_ram_mb = -1;
 };
 
