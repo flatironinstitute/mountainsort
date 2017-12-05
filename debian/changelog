@@ -1,3 +1,9 @@
+mountainsort (0.11.2-beta5) xenial; urgency=medium
+
+  * implement mp-requirements for bp filter and whiten
+
+ -- Jeremy Magland <jmagland@simonsfoundation.org>  Tue, 05 Dec 2017 09:17:45 -0500
+
 mountainsort (0.11.2-beta4) xenial; urgency=medium
 
   * Fix bug in msalg when geom not specified
