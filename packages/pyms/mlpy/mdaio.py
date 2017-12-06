@@ -179,7 +179,7 @@ def _read_header(path):
         if (num_dims<0):
             uses64bitdims=True
             num_dims=-num_dims
-        if (num_dims<2) or (num_dims>6):
+        if (num_dims<1) or (num_dims>6): # allow single dimension as of 12/6/17
             print ("Invalid number of dimensions: {}".format(num_dims))
             return None
         dims=[]
