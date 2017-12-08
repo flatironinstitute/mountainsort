@@ -48,10 +48,13 @@ def extract_timeseries(*,timeseries,channels_array='',timeseries_out,
     if (timeseries_dtype):
         size_bytes=os.path.getsize(timeseries)
         num_bytes_per_entry=get_num_bytes_per_entry_from_dt(timeseries_dtype)
-        num_entries=size_bytes/num_bytes_per_entry
-        if (num_entries % timeseries_num_channels != 0):
-            print ("File size (%ld) is not divisible by number of channels (%g) for dtype=%s" % (size_bytes,timeseries_num_channels,timeseries_dtype))
-            return False            
+        if t2 >= 0:
+            num_entries=(t2+1)*(timeseries_num_channels)
+        else:
+            num_entries=size_bytes/num_bytes_per_entry
+            if (num_entries % timeseries_num_channels != 0):
+                print ("File size (%ld) is not divisible by number of channels (%g) for dtype=%s" % (size_bytes,timeseries_num_channels,timeseries_dtype))
+                return False            
         num_timepoints=num_entries/timeseries_num_channels
         header0=MdaHeader(timeseries_dtype,[timeseries_num_channels,num_timepoints])
     
