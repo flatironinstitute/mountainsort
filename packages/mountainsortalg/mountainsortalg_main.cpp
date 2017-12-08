@@ -29,7 +29,7 @@ QJsonObject get_spec()
 {
     QJsonArray processors;
     {
-        ProcessorSpec X("mountainsortalg.ms3alg", "0.1");
+        ProcessorSpec X("mountainsortalg.ms3alg", "0.11");
         X.addInputs("timeseries");
         X.addOptionalInputs("geom");
         X.addOutputs("firings_out");

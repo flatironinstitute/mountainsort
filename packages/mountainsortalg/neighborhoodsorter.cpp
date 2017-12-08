@@ -32,7 +32,7 @@ public:
     bigint m_max_ram_bytes = 1e9;
     bigint m_M = 0;
     QVector<double> m_times;
-    QVector<DiskBackedMda32> m_accumulated_clips;
+    QVector<DiskBackedMda32 *> m_accumulated_clips;
     QVector<Mda32> m_accumulated_clips_buffer;
     double m_num_bytes = 0;
 
@@ -120,8 +120,8 @@ void NeighborhoodSorter::sort(int num_threads)
         bigint ii = 0;
         for (bigint j = 0; j < d->m_accumulated_clips.count(); j++) {
             Mda32 clips0;
-            d->m_accumulated_clips[j].retrieve(clips0);
-            d->m_accumulated_clips[j].remove(); //remove the temporary file
+            d->m_accumulated_clips[j]->retrieve(clips0);
+            d->m_accumulated_clips[j]->remove(); //remove the temporary file
             clips.setChunk(clips0, 0, 0, ii);
             ii += clips0.N3();
         }
@@ -143,6 +143,9 @@ void NeighborhoodSorter::sort(int num_threads)
         }
         d->m_accumulated_clips_buffer.clear();
     }
+
+    qDeleteAll(d->m_accumulated_clips);
+    d->m_accumulated_clips.clear();
 
     // dimension reduce clips
     Mda32 reduced_clips;
@@ -220,7 +223,7 @@ void NeighborhoodSorterPrivate::clear_accumulated_clips_buffer()
             clips0.setChunk(m_accumulated_clips_buffer[i], 0, 0, jj);
             jj += m_accumulated_clips_buffer[i].N3();
         }
-        DiskBackedMda32 tmp(clips0);
+        DiskBackedMda32 *tmp=new DiskBackedMda32(clips0);
         m_accumulated_clips << tmp;
         m_accumulated_clips_buffer.clear();
     }

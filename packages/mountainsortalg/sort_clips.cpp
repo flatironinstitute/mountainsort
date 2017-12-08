@@ -25,9 +25,11 @@ QVector<int> sort_clips_subset(const Mda32& clips, const QVector<bigint>& indice
 
 QVector<int> sort_clips(const Mda32& clips, const Sort_clips_opts& opts)
 {
-    //bigint M = clips.N1();
-    //bigint T = clips.N2();
+    bigint M = clips.N1();
+    bigint T = clips.N2();
     bigint L = clips.N3();
+
+    qDebug().noquote() << QString("Sorting reduced clips %1x%2x%3").arg(M).arg(T).arg(L);
 
     QVector<bigint> indices(L);
     for (bigint i = 0; i < L; i++) {

@@ -11,7 +11,7 @@ from basic.p_extract_clips import extract_clips_helper
 from mlpy import readmda, writemda64, DiskReadMda
 
 processor_name='pyms.apply_label_map'
-processor_version='0.1'
+processor_version='0.11'
 
 def apply_label_map(*, firings, label_map, firings_out):
     """
@@ -37,7 +37,8 @@ def apply_label_map(*, firings, label_map, firings_out):
 
     #Apply label map
     for label_pair in range(label_map.shape[0]):
-        firings[2, np.isin(firings[2, :], label_map[label_pair, 1])] = label_map[label_pair,0]
+        #firings[2, np.isin(firings[2, :], label_map[label_pair, 1])] = label_map[label_pair,0]
+        firings[2, np.where(firings[2, :] == label_map[label_pair, 1])[0]] = label_map[label_pair,0] # jfm changed on 12/8/17 because isin() is not isin() older versions of numpy. :)
 
     #Mask out all labels mapped to zero
     firings = firings[:, firings[2, :] != 0]

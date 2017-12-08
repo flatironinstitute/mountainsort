@@ -173,7 +173,7 @@ bool p_mountainsort3(QString timeseries, QString geom, QString firings_out, QStr
     QList<TimeChunkInfo> time_chunk_infos;
 
     // The amount of clips data (in the neighborhood sorters) that is permitted to stay in memory
-    bigint clips_RAM = 200e9; //how to set this?
+    bigint clips_RAM = 1 * (1024 * 1024 * 1024); //how to set this?
     bigint clips_RAM_per_neighborhood = clips_RAM / M;
 
     QMap<int, NeighborhoodSorter*> neighborhood_sorters;
@@ -220,6 +220,7 @@ bool p_mountainsort3(QString timeseries, QString geom, QString firings_out, QStr
     // Sort in each neighborhood sorter
     PR.startProcessingStep("Sort in each neighborhood", M * N * sizeof(float));
     for (int j = 0; j < neighborhood_batches.count(); j++) {
+        qDebug().noquote() << QString("Sorting batch %1 of %2...").arg(j+1).arg(neighborhood_batches.count());
         QList<int> neighborhoods = neighborhood_batches[j];
         double bytes0 = 0;
 #pragma omp parallel for num_threads(num_simultaneous_neighborhoods)
