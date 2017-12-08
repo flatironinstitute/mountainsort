@@ -1,3 +1,10 @@
+mountainsort (0.11.2-beta7) xenial; urgency=medium
+
+  * Improve memory usage in ms3alg
+  * Fix python numpy problem -- no longer use isin()
+
+ -- Jeremy Magland <jmagland@simonsfoundation.org>  Fri, 08 Dec 2017 09:16:11 -0500
+
 mountainsort (0.11.2-beta6) xenial; urgency=medium
 
   * Fix uninitialized variable bug
