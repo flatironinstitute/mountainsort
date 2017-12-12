@@ -26,10 +26,25 @@ CLParams::CLParams(int argc, char* argv[])
         QString str = QString(argv[i]);
         if (str.startsWith("--")) {
             int ind2 = str.indexOf("=");
-            QString name = str.mid(2, ind2 - 2);
-            QString val = "";
-            if (ind2 >= 0)
+            QString name, val;
+            if (ind2>=0) {
+                name = str.mid(2, ind2 - 2);
                 val = str.mid(ind2 + 1);
+            }
+            else {
+                name = str.mid(2);
+                if (i+1 < argc) {
+                    QString next0 = QString(argv[i+1]);
+                    if (!next0.startsWith("--")) {
+                        val = next0;
+                        i++;
+                    }
+                    else
+                        val = "";
+                }
+                else
+                    val = "";
+            }
             if (name.isEmpty()) {
                 this->success = false;
                 this->error_message = "Problem with parameter: " + str;
