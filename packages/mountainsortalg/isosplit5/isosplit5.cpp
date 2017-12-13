@@ -208,6 +208,7 @@ bool parcelate2(int* labels, bigint M, bigint N, float* X, bigint target_parcel_
             if ((sz > target_parcel_size) && (rad >= target_radius)) {
                 std::vector<bigint> assignments(inds.size());
                 std::vector<bigint> iii = p2_randsample(sz, split_factor);
+                // iii[1] = iii[0]; //force failure for testing debug
                 for (bigint i = 0; i < (bigint)inds.size(); i++) {
                     bigint best_pt = -1;
                     double best_dist = 0;
@@ -247,6 +248,13 @@ bool parcelate2(int* labels, bigint M, bigint N, float* X, bigint target_parcel_
                     if (PP.indices.size() > 0)
                         parcels.push_back(PP);
                     else {
+                        for (int aa=0; aa<split_factor; aa++) {
+                            printf("DEBUG: iii[%d]=%ld: ",aa,iii[aa]);
+                            for (int mm=0; mm<M; mm++) {
+                                printf("%g ",X[mm+M*inds[iii[aa]]]);
+                            }
+                            printf("\n");
+                        }
                         printf("Unexpected problem. New parcel has no points -- perhaps dataset contains duplicate points? -- original size = %ld.\n", sz);
                         return false;
                     }
