@@ -23,6 +23,7 @@ struct Sort_clips_opts {
     bigint max_samples = 10000;
     double isocut_threshold = 1;
     int K_init = 200;
+    QString debug_description;
 };
 
 QVector<int> sort_clips(const Mda32& clips, const Sort_clips_opts& opts);

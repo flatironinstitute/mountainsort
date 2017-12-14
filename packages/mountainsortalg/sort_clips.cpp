@@ -15,6 +15,7 @@
  */
 #include "sort_clips.h"
 
+#include <QDir>
 #include <QTime>
 #include "pca.h"
 #include "isosplit5.h"
@@ -78,9 +79,16 @@ QVector<int> sort_clips_subset(const Mda32& clips, const QVector<bigint>& indice
         QTime timer;
         timer.start();
         if (!isosplit5(labels0.data(), opts.num_features, L0, FF.dataPtr(), i5_opts)) {
-            qWarning() << "Isosplit5 returned with an error. Aborting";
-            //clips.write32("/home/magland/tmp/debug_clips.mda");
-            //FF.write32("/home/magland/tmp/debug_FF.mda");
+
+            qWarning() << "Problem in isosplit5 while processing clips from: "+opts.debug_description;
+            QString debug_clips_file = QDir::tempPath()+"/debug_isosplit5_clips.mda";
+            QString debug_features_file = QDir::tempPath()+"/debug_isosplit5_features.mda";
+
+            qWarning() << "For debug purposes, writing clips to "+debug_clips_file+" and features to "+debug_features_file+" but note that the features are for a subset of the clips.";
+            clips.write32(debug_clips_file);
+            FF.write32(debug_features_file);
+
+            qWarning() << "Isosplit5 returned with an error. See above for debug information. Aborting";
             abort();
         }
         //qDebug().noquote() << QString("Time elapsed for isosplit (%1x%2) - K=%3: %4 sec").arg(FF.N1()).arg(FF.N2()).arg(MLCompute::max(labels0)).arg(timer.elapsed() * 1.0 / 1000);
