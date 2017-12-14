@@ -189,7 +189,8 @@ QJsonObject get_spec()
     }
     {
         ProcessorSpec X("ms3.extract_clips", "0.11");
-        X.addInputs("timeseries", "event_times");
+        X.addInput("timeseries");
+        X.addInput("event_times","1xL array of event timestamps");
         X.addOutputs("clips_out");
         X.addRequiredParameters("clip_size");
         X.addOptionalParameter("channels");
@@ -197,7 +198,8 @@ QJsonObject get_spec()
     }
     {
         ProcessorSpec X("ms3.mv_extract_clips", "0.1");
-        X.addInputs("timeseries", "firings");
+        X.addInput("timeseries");
+        X.addInput("firings","3xL array");
         X.addOutputs("clips_out");
         X.addRequiredParameters("clip_size");
         X.addOptionalParameter("channels");
