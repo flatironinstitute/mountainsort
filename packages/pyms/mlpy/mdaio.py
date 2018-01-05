@@ -35,6 +35,7 @@ class DiskReadMda:
     def dt(self):
         return self._header.dt
     def readChunk(self,i1=-1,i2=-1,i3=-1,N1=1,N2=1,N3=1):
+        #print("Reading chunk {} {} {} {} {} {}".format(i1,i2,i3,N1,N2,N3))
         if (i2<0):
             return self._read_chunk_1d(i1,N1)
         elif (i3<0):
@@ -76,6 +77,7 @@ class DiskWriteMda:
     def N3(self):
         return self._header.dims[2]
     def writeChunk(self,X,i1=-1,i2=-1,i3=-1):
+        #print("Writing chunk {} {} {} {}".format(i1,i2,i3,X[0]))
         if (len(X.shape)>=2):
             N1=X.shape[0]
         else:
@@ -107,6 +109,7 @@ class DiskWriteMda:
         N=X.size
         f=open(self._path,"ab")
         try:
+            #print('Writing data to file at position {} values: {}'.format(self._header.header_size+self._header.num_bytes_per_entry*i,X))
             f.seek(self._header.header_size+self._header.num_bytes_per_entry*i)
             X.astype(self._header.dt).tofile(f)
             f.close()
