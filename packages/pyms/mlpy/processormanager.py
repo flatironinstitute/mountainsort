@@ -4,6 +4,7 @@ import inspect
 from numpydoc import docscrape
 import traceback
 import numpy as np
+import sys
 
 class ProcessorManager:
     _processors=[]
@@ -68,7 +69,10 @@ class ProcessorManager:
         for j in range(0,len(self._processors)):
             obj=self.getProcessorSpec(self._processors[j])
             program=os.path.abspath(argv[0])
-            obj["exe_command"]="python3 {} {} $(arguments)".format(program,self._processors[j].name)
+            python3_interpreter_path=sys.executable
+            if (len(python3_interpreter_path)==0):
+                python3_interpreter_path='python3'
+            obj["exe_command"]="{} {} {} $(arguments)".format(python3_interpreter_path,program,self._processors[j].name)
             spec["processors"].append(obj)
         return spec
     def getProcessorSpec(self,P):
