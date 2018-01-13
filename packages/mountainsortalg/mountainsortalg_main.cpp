@@ -30,9 +30,9 @@ QJsonObject get_spec()
     QJsonArray processors;
     {
         ProcessorSpec X("mountainsortalg.ms3alg", "0.11");
-        X.addInputs("timeseries");
+        X.addInput("timeseries","Preprocessed timeseries");
         X.addOptionalInputs("geom");
-        X.addOutputs("firings_out");
+        X.addOutput("firings_out","Firings array (times/labels)");
         X.addOptionalParameter("adjacency_radius", "Radius of local sorting neighborhood, corresponding to the geometry file. 0 means each channel is sorted independently. -1 means all channels are included in every neighborhood.", -1);
         X.addOptionalParameter("consolidate_clusters", "", "true");
         X.addOptionalParameter("consolidation_factor", "", 0.9);
