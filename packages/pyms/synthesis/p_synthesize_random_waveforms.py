@@ -74,6 +74,8 @@ def synthesize_random_waveforms(*,waveforms_out=None,geometry_out=None,M=5,T=500
         if geometry_out:
             np.savetxt(geometry_out,geometry.transpose(),delimiter=",",fmt="%g")
             return True
+        else:
+            return True
     else:
         return (WW,geometry)
     

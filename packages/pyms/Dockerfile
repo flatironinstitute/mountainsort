@@ -12,6 +12,7 @@ RUN pip3 install --upgrade numpy
 RUN pip3 install --upgrade pybind11 cppimport
 RUN pip3 install --upgrade scipy
 RUN pip3 install --upgrade sklearn
+RUN pip3 install --upgrade numpydoc
 
 RUN apt-get update && apt-get install -y fftw3-dev
 
