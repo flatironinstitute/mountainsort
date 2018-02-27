@@ -123,7 +123,8 @@ class ProcessorManager:
             if (arg0.startswith("--")):
                 tmp=arg0[2:].split("=")
                 if not tmp[0].startswith('_'):
-                    if (len(tmp)==2):
+                    if (len(tmp)>=2):
+                        tmp[1]='='.join(tmp[1:])
                         if (tmp[0] in args):
                             if (type(args[tmp[0]])==list):
                                 args[tmp[0]].append(tmp[1]) #already a list, so append
