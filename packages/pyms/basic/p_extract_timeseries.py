@@ -21,21 +21,21 @@ def extract_timeseries(*,timeseries,channels_array='',timeseries_out,
     timeseries : INPUT
         Path of timeseries, MxN where M is number of channels and N number of timepoints, in either .mda or raw binary format. If raw binary, then you must supply dtype and num_channels.
     channels_array : INPUT 
-        (optional) Path of array of channel numbers (positive integers). Either use this or the channels parameter, not both.
+        Path of array of channel numbers (positive integers). Either use this or the channels parameter, not both.
         
     timeseries_out : OUTPUT
         Path of output timeseries in .mda format    
         
     channels : string
-        (Optional) Comma-separated list of channels to extract. Either use this or the channels_array input, not both.
+        Comma-separated list of channels to extract. Either use this or the channels_array input, not both.
     t1 : integer
-        (Optional) Integer start timepoint (zero-based indexing). If -1 will set to zero.
+        Integer start timepoint (zero-based indexing). If -1 will set to zero.
     t2 : integer
-        (Optional) Integer end timepoint (zero-based indexing). If -1 will set to N-1."},
+        Integer end timepoint (zero-based indexing). If -1 will set to N-1."},
     timeseries_dtype : string
-        (Optional) Only supply this if timeseries is in raw binary format. Choices are int16, uint16, int32, float32, etc.
+        Only supply this if timeseries is in raw binary format. Choices are int16, uint16, int32, float32, etc.
     timeseries_num_channels : integer
-        (Optional) Only supply this if timeseries is in raw binary format. Integer representing number of channels. Number of timepoints will be deduced
+        Only supply this if timeseries is in raw binary format. Integer representing number of channels. Number of timepoints will be deduced
     """
     if channels:
         _channels=np.fromstring(channels,dtype=int,sep=',')

@@ -79,13 +79,16 @@ void NeighborhoodSorter::addTimeChunk(bigint t, const Mda32& X, const QList<int>
     int central_channel = channels[0];
     int T = d->m_opts.clip_size;
     //int Tmid = (int)((T + 1) / 2) - 1;
+
     QVector<double> X0;
+    X0.reserve(X.N2()); // This is important because then we don't repeatedly reallocate the array below
     for (bigint i = 0; i < X.N2(); i++) {
         X0 << X.value(central_channel - 1, i);
     }
 
     QVector<double> times0 = detect_events(X0, d->m_opts.detect_threshold, d->m_opts.detect_interval, d->m_opts.detect_sign);
     QVector<double> times1; // only the times that fit within the proper time chunk (excluding padding)
+    times1.reserve(times0.count());
     for (bigint i = 0; i < times0.count(); i++) {
         double t0 = times0[i];
         if ((0 <= t0 - padding_left) && (t0 - padding_left < X.N2() - padding_left - padding_right)) {
@@ -166,6 +169,7 @@ void NeighborhoodSorter::sort(int num_threads)
         Consolidate_clusters_opts oo;
         QMap<int, int> label_map = consolidate_clusters(d->m_templates, oo);
         QVector<bigint> inds_to_keep;
+        inds_to_keep.reserve(d->m_labels.count());
         for (bigint i = 0; i < d->m_labels.count(); i++) {
             int k0 = d->m_labels[i];
             if ((k0 > 0) && (label_map[k0] > 0))
