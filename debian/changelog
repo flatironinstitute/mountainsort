@@ -1,3 +1,9 @@
+mountainsort (0.11.6) xenial; urgency=medium
+
+  * Fix bug reported by Tang for 1-d datasets
+
+ -- Jeremy Magland <jmagland@simonsfoundation.org>  Tue, 06 Mar 2018 10:36:41 -0500
+
 mountainsort (0.11.5) xenial; urgency=medium
 
   * Use proper path for python3 interpreter
