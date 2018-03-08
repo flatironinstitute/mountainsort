@@ -33,9 +33,8 @@ public:
     T& operator[](qintptr i) { return std::vector<T>::operator[]((std::size_t)i); }
     bool isEmpty() const { return std::vector<T>::size() == 0; }
     void append(const MLVector<T>& other) { this->insert(this->end(), other.begin(), other.end()); }
-    /// Witold, when you have a chance, I need the proper way to set constBegin=begin and constEnd=end for consistency with QVector. The following did not compile:
-    //std::vector<T>::const_iterator constBegin() const {return begin();}
-    //std::vector<T>::const_iterator constEnd() const {return end();}
+    typename std::vector<T>::const_iterator constBegin() const { return std::vector<T>::begin(); }
+    typename std::vector<T>::const_iterator constEnd() const { return std::vector<T>::end(); }
     T value(qintptr i) const
     {
         if (i < 0)
