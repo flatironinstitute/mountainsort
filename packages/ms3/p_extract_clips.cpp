@@ -36,6 +36,11 @@ bool p_extract_clips(QStringList timeseries_list, QString event_times, const QLi
     bigint T = params["clip_size"].toInt();
     bigint L = ET.totalSize();
 
+    if ((ET.N1()>1)&&(ET.N2()>1)) {
+        qWarning() << "Error: the input (event times) must be a vector.";
+        return false;
+    }
+
     bigint M2 = M;
     if (!channels.isEmpty()) {
         M2 = channels.count();
