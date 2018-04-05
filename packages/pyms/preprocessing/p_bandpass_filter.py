@@ -11,30 +11,29 @@ class SharedChunkInfo():
         self.last_appended_chunk = multiprocessing.Value('l',-1,lock=False)
         self.num_chunks=num_chunks
         self.num_completed_chunks = multiprocessing.Value('l',0,lock=False)
-        self.completed_chunks = multiprocessing.Array('i',num_chunks,lock=False)
         self.lock = multiprocessing.Lock()
-    def reportChunkCompleted(self,num):
-        self.completed_chunks[num]=1
-        self.num_completed_chunks.value+=1
-    def reportChunkAppended(self,num):
-        self.last_appended_chunk.value=num
     def acquireLock(self):
-        self.lock.acquire()
+        return self.lock.acquire()
     def releaseLock(self):
-        self.lock.release()
+        return self.lock.release()
+    def reportChunkCompleted(self,num):
+        with self.lock:
+            self.num_completed_chunks.value+=1
+    def reportChunkAppended(self,num):
+        with self.lock:
+            self.last_appended_chunk.value=num
+    def lastAppendedChunk(self):
+        with self.lock:
+            return self.last_appended_chunk.value
     def resetTimer(self):
-        self.timer_timestamp.value=time.time()
+        with self.lock:
+            self.timer_timestamp.value=time.time()
     def elapsedTime(self):
-        return time.time()-self.timer_timestamp.value
-    def getChunksReadyToAppend(self):
-        ret=[]
-        num=self.last_appended_chunk.value+1
-        while (num<self.num_chunks) and (self.completed_chunks[num]):
-            ret.append(num)
-            num=num+1
-        return ret
+        with self.lock:
+            return time.time()-self.timer_timestamp.value
     def printStatus(self):
-        print('Processed {} of {} chunks...'.format(self.num_completed_chunks.value,self.num_chunks))
+        with self.lock:
+            print('Processed {} of {} chunks...'.format(self.num_completed_chunks.value,self.num_chunks))
 
 def create_filter_kernel(N,samplerate,freq_min,freq_max,freq_wid=1000):
     # Matches ahb's code /matlab/processors/ms_bandpass_filter.m
@@ -90,7 +89,7 @@ def filter_chunk(num):
     
     # Do the actual filtering with a DFT with real input
     padded_chunk=np.fft.rfft(padded_chunk) 
-    # Subtract off the mean of each channel if we are doing a high-pass
+    # Subtract off the mean of each channel unless we are doing only a low-pass filter
     if freq_min!=0:
         for m in range(padded_chunk.shape[0]):
             padded_chunk[m,:]=padded_chunk[m,:]-np.mean(padded_chunk[m,:])
@@ -99,28 +98,27 @@ def filter_chunk(num):
     padded_chunk=padded_chunk*np.tile(kernel,(padded_chunk.shape[0],1))
     padded_chunk=np.fft.irfft(padded_chunk)
     
-    # Write the filtered chunk (excluding the padding) to the temporary file
-    mdaio.writemda32(padded_chunk[:,padding:padding+(t2-t1)],tmp_out_fname)
-    padded_chunk=0 # does this clear the memory?
-    
-    # Let's check to see which chunks are ready to be appended to the main (large) output file
+    ###########################################################################################
+    # Now we wait until we are ready to append to the output file
     # Note that we need to append in order, thus the shared_data object
     ###########################################################################################
-    g_shared_data.acquireLock() # important to lock the shared data whenever we interact with it
     g_shared_data.reportChunkCompleted(num) # Report that we have completed this chunk
-    ready_to_append=g_shared_data.getChunksReadyToAppend() # Get the indices of the chunks ready to append
-    for aa in ready_to_append: # for each of those chunks
-        tmp_out_fname_aa='{}/filt{}.mda'.format(opts['temporary_path'],aa) # this is the temporary chunk output file
-        chunk_aa=mdaio.readmda(tmp_out_fname_aa) # read the temporary file
-        os.remove(tmp_out_fname_aa) # remove the temporary file (cleanup disk)
-        #print('Appending        {}'.format(aa))
-        mdaio.appendmda(chunk_aa,out_fname) # append to the main output file
-        g_shared_data.reportChunkAppended(aa) # Report to the shared data that we have appended this chunk
+    while True:
+        if num == g_shared_data.lastAppendedChunk()+1:
+            break
+        time.sleep(0.005) # so we don't saturate the CPU unnecessarily
+    
+    # Append the filtered chunk (excluding the padding) to the output file
+    g_shared_data.acquireLock()
+    mdaio.appendmda(padded_chunk[:,padding:padding+(t2-t1)],out_fname)
+    g_shared_data.releaseLock()
+        
+    g_shared_data.reportChunkAppended(num)
+
+    # Print status if it has been long enough
     if g_shared_data.elapsedTime()>4:
         g_shared_data.printStatus()
         g_shared_data.resetTimer()
-    g_shared_data.releaseLock()
-    ###########################################################################################
     
 def bandpass_filter(*,
         timeseries,timeseries_out,
