@@ -12,10 +12,6 @@ class SharedChunkInfo():
         self.num_chunks=num_chunks
         self.num_completed_chunks = multiprocessing.Value('l',0,lock=False)
         self.lock = multiprocessing.Lock()
-    def acquireLock(self):
-        return self.lock.acquire()
-    def releaseLock(self):
-        return self.lock.release()
     def reportChunkCompleted(self,num):
         with self.lock:
             self.num_completed_chunks.value+=1
@@ -64,7 +60,6 @@ def filter_chunk(num):
     #print('Filtering chunk {} of {}'.format(num,opts['num_chunks']))
     in_fname=opts['timeseries'] # The entire (large) input file
     out_fname=opts['timeseries_out'] # The entire (large) output file
-    tmp_out_fname='{}/filt{}.mda'.format(opts['temporary_path'],num) # The temporary output file for this chunk
     samplerate=opts['samplerate']
     freq_min=opts['freq_min']
     freq_max=opts['freq_max']
@@ -109,10 +104,9 @@ def filter_chunk(num):
         time.sleep(0.005) # so we don't saturate the CPU unnecessarily
     
     # Append the filtered chunk (excluding the padding) to the output file
-    g_shared_data.acquireLock()
     mdaio.appendmda(padded_chunk[:,padding:padding+(t2-t1)],out_fname)
-    g_shared_data.releaseLock()
-        
+    
+    # Report that we have appended so the next chunk can proceed
     g_shared_data.reportChunkAppended(num)
 
     # Print status if it has been long enough
@@ -123,8 +117,7 @@ def filter_chunk(num):
 def bandpass_filter(*,
         timeseries,timeseries_out,
         samplerate,freq_min,freq_max,freq_wid=1000,
-        padding=3000,chunk_size=3000*10,num_processes=os.cpu_count(),
-        tempdir='.'):
+        padding=3000,chunk_size=3000*10,num_processes=os.cpu_count()):
     """
     Apply a bandpass filter to a multi-channel timeseries
 
@@ -159,7 +152,6 @@ def bandpass_filter(*,
         "freq_min":freq_min,
         "freq_max":freq_max,
         "freq_wid":freq_wid,
-        "temporary_path":tempdir,
         "chunk_size":chunk_size,
         "padding":padding,
         "num_processes":num_processes,

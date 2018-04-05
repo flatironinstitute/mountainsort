@@ -117,10 +117,38 @@ bool p_whiten(QString timeseries, QString timeseries_out, Whiten_opts &opts)
         }
     }
 
+    /*
+    qDebug().noquote() << "Debug XXt";
+    {
+        int aaa=0;
+        for (bigint m1 = 0; m1 < M; m1++) {
+            for (bigint m2 = 0; m2 < M; m2++) {
+                printf("%g ",XXtptr[aaa]);
+                aaa++;
+            }
+            printf("\n");
+        }
+    }
+    */
+
     //Mda AA = get_whitening_matrix(COV);
     Mda WW;
     whitening_matrix_from_XXt(WW, XXt); // the result is symmetric (assumed below)
     double* WWptr = WW.dataPtr();
+
+    /*
+    qDebug().noquote() << "Debug WW";
+    {
+        int aaa=0;
+        for (bigint m1 = 0; m1 < M; m1++) {
+            for (bigint m2 = 0; m2 < M; m2++) {
+                printf("%g ",WWptr[aaa]);
+                aaa++;
+            }
+            printf("\n");
+        }
+    }
+    */
 
     DiskWriteMda Y;
     int dtype = MDAIO_TYPE_FLOAT32;
