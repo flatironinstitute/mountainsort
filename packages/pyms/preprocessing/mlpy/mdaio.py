@@ -3,7 +3,7 @@ import struct
 
 class MdaHeader:
     def __init__(self, dt0, dims0):
-        uses64bitdims=(max(dims0)>2e9)            
+        uses64bitdims=(max(dims0)>2e9)
         self.uses64bitdims=uses64bitdims
         self.dt_code=_dt_code_from_dt(dt0)
         self.dt=dt0
@@ -261,28 +261,28 @@ def readmda(path):
         f.close()
         return None
 
-def writemda32(X,fname):
-    return _writemda(X,fname,'float32')
+def writemda32(X,fname,*,force_64bitdims=False):
+    return _writemda(X,fname,'float32',force_64bitdims=force_64bitdims)
 
-def writemda64(X,fname):
-    return _writemda(X,fname,'float64')
+def writemda64(X,fname,*,force_64bitdims=False):
+    return _writemda(X,fname,'float64',force_64bitdims=force_64bitdims)
 
-def writemda8(X,fname):
-    return _writemda(X,fname,'uint8')
+def writemda8(X,fname,*,force_64bitdims=False):
+    return _writemda(X,fname,'uint8',force_64bitdims=force_64bitdims)
 
-def writemda32i(X,fname):
-    return _writemda(X,fname,'int32')
+def writemda32i(X,fname,*,force_64bitdims=False):
+    return _writemda(X,fname,'int32',force_64bitdims=force_64bitdims)
 
-def writemda32ui(X,fname):
-    return _writemda(X,fname,'uint32')    
+def writemda32ui(X,fname,*,force_64bitdims=False):
+    return _writemda(X,fname,'uint32',force_64bitdims=force_64bitdims)    
 
-def writemda16i(X,fname):
-    return _writemda(X,fname,'int16')    
+def writemda16i(X,fname,*,force_64bitdims=False):
+    return _writemda(X,fname,'int16',force_64bitdims=force_64bitdims)    
 
-def writemda16ui(X,fname):
-    return _writemda(X,fname,'uint16')    
+def writemda16ui(X,fname,*,force_64bitdims=False):
+    return _writemda(X,fname,'uint16',force_64bitdims=force_64bitdims)    
 
-def _writemda(X,fname,dt):
+def _writemda(X,fname,dt,*,force_64bitdims=False):
     dt_code=0
     num_bytes_per_entry=get_num_bytes_per_entry_from_dt(dt)
     dt_code=_dt_code_from_dt(dt)
@@ -290,13 +290,20 @@ def _writemda(X,fname,dt):
         print ("Unexpected data type: {}".format(dt))
         return False
 
+    uses64bitdims=((max(X.shape)>2e9) or force_64bitdims)
+    
     f=open(fname,'wb')
     try:
         _write_int32(f,dt_code)
         _write_int32(f,num_bytes_per_entry)
-        _write_int32(f,X.ndim)
-        for j in range(0,X.ndim):
-            _write_int32(f,X.shape[j])
+        if uses64bitdims:
+            _write_int32(f,-X.ndim)
+            for j in range(0,X.ndim):
+                _write_int64(f,X.shape[j])
+        else:
+            _write_int32(f,X.ndim)
+            for j in range(0,X.ndim):
+                _write_int32(f,X.shape[j])
         #This is how I do column-major order
         A=np.reshape(X,X.size,order='F').astype(dt)
         A.tofile(f)

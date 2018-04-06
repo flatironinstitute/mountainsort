@@ -5,31 +5,31 @@ import multiprocessing
 import time
 import os
 
-# import h5py
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-import h5py
-warnings.resetwarnings()
-
-
 class SharedChunkInfo():
     def __init__(self,num_chunks):
         self.timer_timestamp = multiprocessing.Value('d',time.time(),lock=False)
+        self.last_appended_chunk = multiprocessing.Value('l',-1,lock=False)
         self.num_chunks=num_chunks
         self.num_completed_chunks = multiprocessing.Value('l',0,lock=False)
         self.lock = multiprocessing.Lock()
-    def acquireLock(self):
-        self.lock.acquire()
-    def releaseLock(self):
-        self.lock.release()
     def reportChunkCompleted(self,num):
-        self.num_completed_chunks.value+=1
+        with self.lock:
+            self.num_completed_chunks.value+=1
+    def reportChunkAppended(self,num):
+        with self.lock:
+            self.last_appended_chunk.value=num
+    def lastAppendedChunk(self):
+        with self.lock:
+            return self.last_appended_chunk.value
     def resetTimer(self):
-        self.timer_timestamp.value=time.time()
+        with self.lock:
+            self.timer_timestamp.value=time.time()
     def elapsedTime(self):
-        return time.time()-self.timer_timestamp.value
+        with self.lock:
+            return time.time()-self.timer_timestamp.value
     def printStatus(self):
-        print('Processed {} of {} chunks...'.format(self.num_completed_chunks.value,self.num_chunks))
+        with self.lock:
+            print('Processed {} of {} chunks...'.format(self.num_completed_chunks.value,self.num_chunks))
 
 def create_filter_kernel(N,samplerate,freq_min,freq_max,freq_wid=1000):
     # Matches ahb's code /matlab/processors/ms_bandpass_filter.m
@@ -60,7 +60,6 @@ def filter_chunk(num):
     #print('Filtering chunk {} of {}'.format(num,opts['num_chunks']))
     in_fname=opts['timeseries'] # The entire (large) input file
     out_fname=opts['timeseries_out'] # The entire (large) output file
-    temp_fname=opts['temp_fname'] # The temporary hdf5 file to accumulate the filtered chunks
     samplerate=opts['samplerate']
     freq_min=opts['freq_min']
     freq_max=opts['freq_max']
@@ -94,24 +93,26 @@ def filter_chunk(num):
     padded_chunk=padded_chunk*np.tile(kernel,(padded_chunk.shape[0],1))
     padded_chunk=np.fft.irfft(padded_chunk)
     
+    ###########################################################################################
+    # Now we wait until we are ready to append to the output file
+    # Note that we need to append in order, thus the shared_data object
+    ###########################################################################################
+    g_shared_data.reportChunkCompleted(num) # Report that we have completed this chunk
+    while True:
+        if num == g_shared_data.lastAppendedChunk()+1:
+            break
+        time.sleep(0.005) # so we don't saturate the CPU unnecessarily
     
-    ## Lock   ###########################################################
-    g_shared_data.acquireLock() 
+    # Append the filtered chunk (excluding the padding) to the output file
+    mdaio.appendmda(padded_chunk[:,padding:padding+(t2-t1)],out_fname)
     
-    # Save result to the temporary file (excluding tha padding)
-    with h5py.File(temp_fname,"a") as f:
-        f.create_dataset('filt-{}'.format(num),data=padded_chunk[:,padding:padding+(t2-t1)])
-    
-    # Report that we have completed this chunk
-    g_shared_data.reportChunkCompleted(num) 
+    # Report that we have appended so the next chunk can proceed
+    g_shared_data.reportChunkAppended(num)
 
-    # Print status if it has been long enough since last report
+    # Print status if it has been long enough
     if g_shared_data.elapsedTime()>4:
         g_shared_data.printStatus()
         g_shared_data.resetTimer()
-        
-    g_shared_data.releaseLock()
-    ## Unlock ###########################################################
     
 def bandpass_filter(*,
         timeseries,timeseries_out,
@@ -137,13 +138,6 @@ def bandpass_filter(*,
     freq_wid : float
         The optional width of the roll-off (Hz)
     """
-    
-    tempdir=os.environ.get('ML_PROCESSOR_TEMPDIR')
-    if not tempdir:
-        print ('Warning: environment variable ML_PROCESSOR_TEMPDIR not set. Using current directory.')
-        tempdir='.'
-    print ('Using tempdir={}'.format(tempdir))
-    
     X=mdaio.DiskReadMda(timeseries)
     M=X.N1() # Number of channels
     N=X.N2() # Number of timepoints
@@ -154,7 +148,6 @@ def bandpass_filter(*,
     opts={
         "timeseries":timeseries,
         "timeseries_out":timeseries_out,
-        "temp_fname":tempdir+'/filt_chunks.hdf5',
         "samplerate":samplerate,
         "freq_min":freq_min,
         "freq_max":freq_max,
@@ -168,17 +161,10 @@ def bandpass_filter(*,
     g_shared_data=SharedChunkInfo(num_chunks)
     global g_opts
     g_opts=opts
+    mdaio.writemda32(np.zeros([M,0]),timeseries_out)
     
     pool = multiprocessing.Pool(processes=num_processes)
     pool.map(filter_chunk,range(num_chunks),chunksize=1)
-    
-    print('Assembling filtered chunks...')
-    mdaio.writemda32(np.zeros([M,0]),timeseries_out,force_64bitdims=True)
-    for num in range(num_chunks):
-        with h5py.File(opts['temp_fname'], "a") as f:
-            Y=np.array(f.get('filt-{}'.format(num)))
-            assert Y.shape[0] == M 
-            mdaio.appendmda(Y,timeseries_out)
     return True
 bandpass_filter.name='pyms.bandpass_filter'
-bandpass_filter.version='0.1.1'
+bandpass_filter.version='0.1'

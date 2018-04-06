@@ -4,31 +4,31 @@ import multiprocessing
 import time
 import os
 
-# import h5py
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-import h5py
-warnings.resetwarnings()
-
-
 class SharedChunkInfo():
     def __init__(self,num_chunks):
         self.timer_timestamp = multiprocessing.Value('d',time.time(),lock=False)
+        self.last_appended_chunk = multiprocessing.Value('l',-1,lock=False)
         self.num_chunks=num_chunks
         self.num_completed_chunks = multiprocessing.Value('l',0,lock=False)
         self.lock = multiprocessing.Lock()
-    def acquireLock(self):
-        self.lock.acquire()
-    def releaseLock(self):
-        self.lock.release()
     def reportChunkCompleted(self,num):
-        self.num_completed_chunks.value+=1
+        with self.lock:
+            self.num_completed_chunks.value+=1
+    def reportChunkAppended(self,num):
+        with self.lock:
+            self.last_appended_chunk.value=num
+    def lastAppendedChunk(self):
+        with self.lock:
+            return self.last_appended_chunk.value
     def resetTimer(self):
-        self.timer_timestamp.value=time.time()
+        with self.lock:
+            self.timer_timestamp.value=time.time()
     def elapsedTime(self):
-        return time.time()-self.timer_timestamp.value
+        with self.lock:
+            return time.time()-self.timer_timestamp.value
     def printStatus(self):
-        print('Processed {} of {} chunks...'.format(self.num_completed_chunks.value,self.num_chunks))
+        with self.lock:
+            print('Processed {} of {} chunks...'.format(self.num_completed_chunks.value,self.num_chunks))
 
 def compute_AAt_matrix_for_chunk(num):
     opts=g_opts
@@ -53,7 +53,6 @@ def whiten_chunk(num,W):
     #print('Whitening chunk {} of {}'.format(num,opts['num_chunks']))
     in_fname=opts['timeseries'] # The entire (large) input file
     out_fname=opts['timeseries_out'] # The entire (large) output file
-    temp_fname=opts['temp_fname'] # The temporary hdf5 file to accumulate the whitened chunks
     chunk_size=opts['chunk_size']
     
     X=mdaio.DiskReadMda(in_fname)
@@ -64,24 +63,27 @@ def whiten_chunk(num,W):
     chunk=X.readChunk(i1=0,N1=X.N1(),i2=t1,N2=t2-t1) # Read the chunk
     
     chunk=W @ chunk
-
-    ## Lock   ###########################################################
-    g_shared_data.acquireLock() 
     
-    # Save result to the temporary file
-    with h5py.File(temp_fname,"a") as f:
-        f.create_dataset('whitened-{}'.format(num),data=chunk)
+    ###########################################################################################
+    # Now we wait until we are ready to append to the output file
+    # Note that we need to append in order, thus the shared_data object
+    ###########################################################################################
+    g_shared_data.reportChunkCompleted(num) # Report that we have completed this chunk
+    while True:
+        if num == g_shared_data.lastAppendedChunk()+1:
+            break
+        time.sleep(0.005) # so we don't saturate the CPU unnecessarily
     
-    # Report that we have completed this chunk
-    g_shared_data.reportChunkCompleted(num) 
+    # Append the filtered chunk (excluding the padding) to the output file
+    mdaio.appendmda(chunk,out_fname)
+    
+    # Report that we have appended so the next chunk can proceed
+    g_shared_data.reportChunkAppended(num)
 
-    # Print status if it has been long enough since last report
+    # Print status if it has been long enough
     if g_shared_data.elapsedTime()>4:
         g_shared_data.printStatus()
         g_shared_data.resetTimer()
-        
-    g_shared_data.releaseLock()
-    ## Unlock ###########################################################
     
 def whiten(*,
         timeseries,timeseries_out,
@@ -99,13 +101,6 @@ def whiten(*,
         Whitened output (MxN array)
 
     """
-
-    tempdir=os.environ.get('ML_PROCESSOR_TEMPDIR')
-    if not tempdir:
-        print ('Warning: environment variable ML_PROCESSOR_TEMPDIR not set. Using current directory.')
-        tempdir='.'
-    print ('Using tempdir={}'.format(tempdir))
-
     X=mdaio.DiskReadMda(timeseries)
     M=X.N1() # Number of channels
     N=X.N2() # Number of timepoints
@@ -118,7 +113,6 @@ def whiten(*,
     opts={
         "timeseries":timeseries,
         "timeseries_out":timeseries_out,
-        "temp_fname":tempdir+'/whitened_chunks.hdf5',
         "chunk_size":chunk_size,
         "num_processes":num_processes,
         "num_chunks":num_chunks
@@ -147,16 +141,7 @@ def whiten(*,
     
     pool = multiprocessing.Pool(processes=num_processes)
     pool.starmap(whiten_chunk,[(num,W) for num in range(0,num_chunks)],chunksize=1)
-
-    print('Assembling whitened chunks...')
-    mdaio.writemda32(np.zeros([M,0]),timeseries_out,force_64bitdims=True)
-    for num in range(num_chunks):
-        with h5py.File(opts['temp_fname'], "a") as f:
-            Y=np.array(f.get('whitened-{}'.format(num)))
-            assert Y.shape[0] == M 
-            mdaio.appendmda(Y,timeseries_out)
-    return True
     
     return True
 whiten.name='pyms.whiten'
-whiten.version='0.1.1'
+whiten.version='0.1'

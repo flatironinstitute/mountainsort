@@ -11,3 +11,5 @@ Makefile
 .idea
 Makefile.*
 tmp.*
+.ipynb_checkpoints
+.qmake.stash
