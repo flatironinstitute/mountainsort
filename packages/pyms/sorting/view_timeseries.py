@@ -9,19 +9,23 @@ def view_timeseries(timeseries,trange=None,channels=None,samplerate=30000,title=
         M=X.N1()
         N=X.N2()
         if not trange:
-            trange=[0,np.minimum(1000,N)]
+            trange=[0,np.minimum(10000,N)]
+        if not channels:
+            channels=np.arange(M).tolist()
         X=X.readChunk(i1=0,N1=X.N1(),i2=int(trange[0]),N2=int(trange[1]-trange[0]))
     else:
         M=timeseries.shape[0]
         N=timeseries.shape[1]
+        if not trange:
+            trange=[0,np.minimum(1000,N)]
+        if not channels:
+            channels=np.arange(M).tolist()
         X=timeseries[channels][:,int(trange[0]):int(trange[1])]
     
     set_fig_size(fig_size[0],fig_size[1])
     
     channel_colors=_get_channel_colors(M)
-    if not channels:
-        channels=np.arange(M).tolist()
-        
+
     spacing_between_channels=np.max(np.abs(X.ravel()))
     
     y_offset=0
