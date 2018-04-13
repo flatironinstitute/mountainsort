@@ -98,8 +98,8 @@ int main(int argc, char* argv[])
         opts.detect_sign = CLP.named_parameters.value("detect_sign").toInt();
         opts.merge_across_channels = (CLP.named_parameters.value("merge_across_channels").toString() == "true");
         opts.fit_stage = (CLP.named_parameters.value("fit_stage").toString() == "true");
-        opts.t1 = CLP.named_parameters.value("t1").toDouble();
-        opts.t2 = CLP.named_parameters.value("t2").toDouble();
+        opts.t1 = CLP.named_parameters.value("t1","-1").toDouble();
+        opts.t2 = CLP.named_parameters.value("t2","-1").toDouble();
         QString temp_path = CLP.named_parameters.value("_tempdir").toString();
         if (temp_path.isEmpty()) {
             temp_path = QDir::currentPath();
