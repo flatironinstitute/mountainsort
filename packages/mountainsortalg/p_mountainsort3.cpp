@@ -195,15 +195,11 @@ bool p_mountainsort3(QString timeseries, QString geom, QString firings_out, QStr
         X.readChunk(time_chunk, 0, t_start + TCI.t1 - TCI.t_padding, M, TCI.size + 2 * TCI.t_padding);
         PR.addBytesRead(time_chunk.totalSize() * sizeof(float));
         for (int j = 0; j < neighborhood_batches.count(); j++) {
-            QList<int> neighborhoods = neighborhood_batches[j];
+            const QList<int>& neighborhoods = neighborhood_batches[j];
             double bytes0 = 0;
 #pragma omp parallel for num_threads(num_simultaneous_neighborhoods)
             for (int k = 0; k < neighborhoods.count(); k++) {
-                int m;
-#pragma omp critical(m1)
-                {
-                    m = neighborhoods[k]; //I don't know why this needs to be in a critical section
-                }
+                const int m = neighborhoods.at(k);
                 //extract_channels(neighborhood_time_chunk, time_chunk, neighborhood_channels[m]);
                 neighborhood_sorters[m]->addTimeChunk(TCI.t1, time_chunk, neighborhood_channels[m], TCI.t_padding, TCI.t_padding);
 #pragma omp critical(a1)
@@ -221,15 +217,13 @@ bool p_mountainsort3(QString timeseries, QString geom, QString firings_out, QStr
     PR.startProcessingStep("Sort in each neighborhood", M * N * sizeof(float));
     for (int j = 0; j < neighborhood_batches.count(); j++) {
         qDebug().noquote() << QString("Sorting batch %1 of %2...").arg(j+1).arg(neighborhood_batches.count());
-        QList<int> neighborhoods = neighborhood_batches[j];
+        const QList<int>& neighborhoods = neighborhood_batches[j];
         double bytes0 = 0;
+        // 1. The following can be rewritten to iterate over neighborhood_sorters instead of neighborhoods
+
 #pragma omp parallel for num_threads(num_simultaneous_neighborhoods)
         for (int k = 0; k < neighborhoods.count(); k++) {
-            int m;
-#pragma omp critical(m2)
-            {
-                m = neighborhoods[k]; //I don't know why this needs to be in a critical section
-            }
+            const int m = neighborhoods.at(k);
             neighborhood_sorters[m]->sort(num_threads_within_neighborhoods);
 #pragma omp critical(a1)
             {
