@@ -3,8 +3,9 @@ from setuptools.command.build_ext import build_ext
 import sys, os
 
 # if we want to use conda compilers (which pick up llvm-openmp and fftw3 automatically)
-os.environ["CC"]="clang"
-os.environ["CXX"]="clang++"
+if sys.platform == "darwin":
+    os.environ["CC"]="clang"
+    os.environ["CXX"]="clang++"
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
