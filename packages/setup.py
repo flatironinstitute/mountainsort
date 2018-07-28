@@ -44,7 +44,7 @@ ext_modules = [
             'pyms/mlpy/'
         ],
         libraries=[],
-        extra_compile_args=[], #['-fopenmp', '-lfftw3'],
+        extra_compile_args=[],# ignored? hardcode below ( https://github.com/pybind/python_example/issues/23 )
         extra_link_args=[],
         language='c++'
     )]
@@ -92,6 +92,8 @@ class BuildExt(build_ext):
         ct = self.compiler.compiler_type
         opts = self.c_opts.get(ct, [])
         if ct == 'unix':
+            opts.append('-fopenmp')
+            opts.append('-lfftw3')
             opts.append('-DVERSION_INFO="%s"' % self.distribution.get_version())
             opts.append(cpp_flag(self.compiler))   # AHB: C++11 not used now, but David Stein says needed.
             if has_flag(self.compiler, '-fvisibility=hidden'):
