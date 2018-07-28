@@ -10,6 +10,10 @@ MOC_DIR= build
 TARGET = ms3.mp
 TEMPLATE = app
 
+macx{
+	CONFIG -= app_bundle
+}
+
 QMAKE_CXXFLAGS += -fopenmp
 QMAKE_LFLAGS += -fopenmp
 

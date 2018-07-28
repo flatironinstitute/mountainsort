@@ -2,6 +2,7 @@
 __pycache__
 bin
 build
+var
 .*.cppimporthash
 .rendered.*
 *.so
@@ -11,3 +12,5 @@ Makefile
 .idea
 Makefile.*
 tmp.*
+dist
+*.egg-info
