@@ -109,7 +109,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="pyms",
+    name="ml_pyms",
     version="0.0.1",
     author="Jeremy Magland",
     author_email="",
