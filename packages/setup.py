@@ -45,8 +45,8 @@ ext_modules = [
             'pyms/mlpy/'
         ],
         libraries=[],
-        extra_compile_args=[],# ignored? hardcode below ( https://github.com/pybind/python_example/issues/23 )
-        extra_link_args=['-fopenmp'], # -fopenmp also needs to be passed to the linker
+        extra_compile_args=[],# flags ignored here? hardcoded below ( https://github.com/pybind/python_example/issues/23 )
+        extra_link_args=['-fopenmp', '-lfftw3'], # -fopenmp -lfftw3 also needs to be passed to the linker
         language='c++'
     )]
 
