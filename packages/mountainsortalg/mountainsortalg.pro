@@ -9,6 +9,10 @@ MOC_DIR=build
 TARGET = mountainsortalg.mp
 TEMPLATE = app
 
+macx{
+	CONFIG -= app_bundle
+}
+
 DISTFILES +=
 
 INCLUDEPATH += mda
