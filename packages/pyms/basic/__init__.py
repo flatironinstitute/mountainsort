@@ -4,3 +4,4 @@ from .p_extract_geom import *
 from .p_extract_timeseries import *
 from .p_normalize_channels import *
 from .p_bandpass_filter import * 
+from .p_partial_timeseries import *
