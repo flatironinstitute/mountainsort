@@ -1,5 +1,9 @@
 # MountainSort
 
+This repo is archived. Please see [mountainsort4](https://github.com/magland/mountainsort4), [mountainsort5](https://github.com/flatironinstitute/mountainsort5), or [spikeinterface](https://github.com/spikeinterface/spikeinterface).
+
+## OLD
+
 Spike sorting software
 
 Please use the [new version of MountainSort](https://github.com/flatironinstitute/mountainsort_examples/blob/master/README.md).
